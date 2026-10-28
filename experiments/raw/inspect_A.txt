@@ -1,0 +1,288 @@
+SCENE: A
+
+SECTION 1: city.npz
+city_npz.path: C:\Users\kano\Desktop\ffjj\lib\03_场景\A_真实深圳南山\city.npz
+city_npz.exists: true
+city_npz.keys: ["building_mask","pop_density","building_footprint","meta"]
+city_npz.has_meta: true
+city_npz.building_mask: shape=(1200, 1200, 61), dtype=bool, nan_count=not_applicable, finite_count=not_applicable
+city_npz.pop_density: shape=(1200, 1200), dtype=float32, nan_count=0, finite_count=1440000, min=0.0009157739696092904, max=0.054771486669778824
+city_npz.building_footprint: shape=(1200, 1200), dtype=bool, nan_count=not_applicable, finite_count=not_applicable
+city_npz.meta: shape=(), dtype=<U1559, nan_count=not_applicable, finite_count=not_applicable
+
+SECTION 2: building_mask / pop_density / R
+building_mask.shape: [1200,1200,61]
+building_mask.dtype: bool
+building_mask.true_count: 2921211
+building_mask.total_count: 87840000
+building_mask.true_ratio: 0.033256045081967216
+pop_density.shape: [1200,1200]
+pop_density.dtype: float32
+pop_density.nan_count: 0
+pop_density.min: 0.0009157739696092904
+pop_density.max: 0.054771486669778824
+R.shape: unavailable: R key absent from city.npz
+R.dtype: unavailable: R key absent from city.npz
+R.nan_count: unavailable: R key absent from city.npz
+R.finite_count: unavailable: R key absent from city.npz
+R.min: unavailable: R key absent from city.npz
+R.max: unavailable: R key absent from city.npz
+
+SECTION 3: slices
+slices_dir: C:\Users\kano\Desktop\ffjj\lib\03_场景\A_真实深圳南山\slices
+slices_dir.exists: true
+index_json.exists: true
+index_json.windows: [{"file":"win_h030_highrisk.npz","i0":601,"j0":936,"n_building_cells":1056,"r_mean_in_window":1.2913544678028188e-09,"tag":"highrisk","z":30},{"file":"win_h030_lowrisk.npz","i0":223,"j0":1102,"n_building_cells":350,"r_mean_in_window":2.1301926889094602e-10,"tag":"lowrisk","z":30},{"file":"win_h060_highrisk.npz","i0":61,"j0":209,"n_building_cells":499,"r_mean_in_window":1.1060102833582164e-09,"tag":"highrisk","z":60},{"file":"win_h060_lowrisk.npz","i0":407,"j0":691,"n_building_cells":0,"r_mean_in_window":1.2627789092167774e-10,"tag":"lowrisk","z":60},{"file":"win_h090_highrisk.npz","i0":366,"j0":508,"n_building_cells":0,"r_mean_in_window":1.0227483304703355e-09,"tag":"highrisk","z":90},{"file":"win_h090_lowrisk.npz","i0":407,"j0":691,"n_building_cells":0,"r_mean_in_window":1.2806480875759974e-10,"tag":"lowrisk","z":90}]
+window.win_h030_highrisk.npz.exists: true
+window.win_h030_highrisk.npz.keys: ["R_win","meta"]
+window.win_h030_highrisk.npz.R_win: shape=(64, 64), dtype=float32, nan_count=1056, finite_count=3040, min=7.29358171080996e-11, max=7.649406441601059e-09
+window.win_h030_lowrisk.npz.exists: true
+window.win_h030_lowrisk.npz.keys: ["R_win","meta"]
+window.win_h030_lowrisk.npz.R_win: shape=(64, 64), dtype=float32, nan_count=350, finite_count=3746, min=6.98670496457332e-11, max=2.1178088172035814e-09
+window.win_h060_highrisk.npz.exists: true
+window.win_h060_highrisk.npz.keys: ["R_win","meta"]
+window.win_h060_highrisk.npz.R_win: shape=(64, 64), dtype=float32, nan_count=499, finite_count=3597, min=1.207769162459016e-10, max=6.353929826730109e-09
+window.win_h060_lowrisk.npz.exists: true
+window.win_h060_lowrisk.npz.keys: ["R_win","meta"]
+window.win_h060_lowrisk.npz.R_win: shape=(64, 64), dtype=float32, nan_count=0, finite_count=4096, min=6.202566238400209e-11, max=6.569650379262271e-10
+window.win_h090_highrisk.npz.exists: true
+window.win_h090_highrisk.npz.keys: ["R_win","meta"]
+window.win_h090_highrisk.npz.R_win: shape=(64, 64), dtype=float32, nan_count=0, finite_count=4096, min=1.0393723381962872e-10, max=6.603208202449196e-09
+window.win_h090_lowrisk.npz.exists: true
+window.win_h090_lowrisk.npz.keys: ["R_win","meta"]
+window.win_h090_lowrisk.npz.R_win: shape=(64, 64), dtype=float32, nan_count=0, finite_count=4096, min=6.281047210121571e-11, max=6.36443509005602e-10
+probe_points.csv.exists: true
+probe_points.csv.header: i,j,h_idx,z,kind,R_expected
+probe_points.csv.data_line_count: 210
+probe_points.csv.probes:
+  {"R_expected":"4.0171180271e-10","h_idx":"0","i":"82","j":"444","kind":"open","z":"30"}
+  {"R_expected":"4.7217613153e-10","h_idx":"0","i":"1116","j":"153","kind":"open","z":"30"}
+  {"R_expected":"5.8497029443e-10","h_idx":"0","i":"689","j":"755","kind":"open","z":"30"}
+  {"R_expected":"2.0313744020e-09","h_idx":"0","i":"178","j":"538","kind":"open","z":"30"}
+  {"R_expected":"2.7301380601e-10","h_idx":"0","i":"557","j":"865","kind":"open","z":"30"}
+  {"R_expected":"3.0926561312e-10","h_idx":"0","i":"589","j":"904","kind":"open","z":"30"}
+  {"R_expected":"6.7542882398e-10","h_idx":"0","i":"767","j":"839","kind":"open","z":"30"}
+  {"R_expected":"4.4347121531e-09","h_idx":"0","i":"152","j":"302","kind":"open","z":"30"}
+  {"R_expected":"4.0975797755e-10","h_idx":"0","i":"69","j":"654","kind":"open","z":"30"}
+  {"R_expected":"3.3100316932e-10","h_idx":"0","i":"385","j":"501","kind":"open","z":"30"}
+  {"R_expected":"3.2865229982e-10","h_idx":"0","i":"107","j":"341","kind":"open","z":"30"}
+  {"R_expected":"2.2491415674e-10","h_idx":"0","i":"1049","j":"264","kind":"open","z":"30"}
+  {"R_expected":"4.9196524632e-10","h_idx":"0","i":"198","j":"1094","kind":"open","z":"30"}
+  {"R_expected":"2.8663313389e-10","h_idx":"0","i":"770","j":"788","kind":"open","z":"30"}
+  {"R_expected":"4.9204718078e-10","h_idx":"0","i":"208","j":"896","kind":"open","z":"30"}
+  {"R_expected":"4.9124482260e-10","h_idx":"0","i":"81","j":"977","kind":"open","z":"30"}
+  {"R_expected":"4.6798726006e-10","h_idx":"0","i":"804","j":"321","kind":"open","z":"30"}
+  {"R_expected":"4.9306747574e-10","h_idx":"0","i":"998","j":"297","kind":"open","z":"30"}
+  {"R_expected":"3.3233973906e-10","h_idx":"0","i":"849","j":"326","kind":"open","z":"30"}
+  {"R_expected":"3.6659145164e-10","h_idx":"0","i":"145","j":"1012","kind":"open","z":"30"}
+  {"R_expected":"1.1572148795e-09","h_idx":"0","i":"713","j":"94","kind":"open","z":"30"}
+  {"R_expected":"5.5392490594e-10","h_idx":"0","i":"724","j":"621","kind":"open","z":"30"}
+  {"R_expected":"3.5854130775e-10","h_idx":"0","i":"792","j":"33","kind":"open","z":"30"}
+  {"R_expected":"2.8305260913e-10","h_idx":"0","i":"878","j":"661","kind":"open","z":"30"}
+  {"R_expected":"5.1066445517e-10","h_idx":"0","i":"114","j":"753","kind":"open","z":"30"}
+  {"R_expected":"1.3482966965e-09","h_idx":"0","i":"1014","j":"772","kind":"open","z":"30"}
+  {"R_expected":"3.3130134747e-10","h_idx":"0","i":"615","j":"502","kind":"open","z":"30"}
+  {"R_expected":"9.8007923999e-10","h_idx":"0","i":"1072","j":"1004","kind":"open","z":"30"}
+  {"R_expected":"7.0369343685e-10","h_idx":"0","i":"377","j":"374","kind":"open","z":"30"}
+  {"R_expected":"4.1570288878e-10","h_idx":"0","i":"887","j":"84","kind":"open","z":"30"}
+  {"R_expected":"5.5191806680e-10","h_idx":"0","i":"796","j":"629","kind":"open","z":"30"}
+  {"R_expected":"5.3997678551e-10","h_idx":"0","i":"1181","j":"869","kind":"open","z":"30"}
+  {"R_expected":"4.7511122814e-10","h_idx":"0","i":"662","j":"150","kind":"open","z":"30"}
+  {"R_expected":"4.0721040429e-10","h_idx":"0","i":"218","j":"1025","kind":"open","z":"30"}
+  {"R_expected":"3.8676714609e-10","h_idx":"0","i":"750","j":"743","kind":"open","z":"30"}
+  {"R_expected":"4.0839312487e-10","h_idx":"0","i":"515","j":"455","kind":"open","z":"30"}
+  {"R_expected":"9.5885088758e-10","h_idx":"0","i":"706","j":"343","kind":"open","z":"30"}
+  {"R_expected":"2.2802099098e-10","h_idx":"0","i":"397","j":"114","kind":"open","z":"30"}
+  {"R_expected":"6.1031407705e-10","h_idx":"0","i":"428","j":"206","kind":"open","z":"30"}
+  {"R_expected":"2.7097873945e-10","h_idx":"0","i":"789","j":"427","kind":"open","z":"30"}
+  {"R_expected":"4.5192644071e-10","h_idx":"0","i":"254","j":"941","kind":"open","z":"30"}
+  {"R_expected":"1.3820118383e-09","h_idx":"0","i":"757","j":"90","kind":"open","z":"30"}
+  {"R_expected":"4.3111533787e-10","h_idx":"0","i":"1132","j":"329","kind":"open","z":"30"}
+  {"R_expected":"3.1203631345e-10","h_idx":"0","i":"790","j":"496","kind":"open","z":"30"}
+  {"R_expected":"3.5956629341e-10","h_idx":"0","i":"871","j":"193","kind":"open","z":"30"}
+  {"R_expected":"1.5473691217e-09","h_idx":"0","i":"763","j":"281","kind":"open","z":"30"}
+  {"R_expected":"9.0457774604e-10","h_idx":"0","i":"219","j":"955","kind":"open","z":"30"}
+  {"R_expected":"4.3940456829e-10","h_idx":"0","i":"45","j":"266","kind":"open","z":"30"}
+  {"R_expected":"5.4328141985e-10","h_idx":"0","i":"285","j":"1068","kind":"open","z":"30"}
+  {"R_expected":"1.4708629870e-09","h_idx":"0","i":"664","j":"1031","kind":"open","z":"30"}
+  {"R_expected":"1.6410518777e-10","h_idx":"0","i":"1166","j":"1043","kind":"open","z":"30"}
+  {"R_expected":"5.8688504057e-10","h_idx":"0","i":"950","j":"754","kind":"open","z":"30"}
+  {"R_expected":"4.2819536805e-10","h_idx":"0","i":"688","j":"315","kind":"open","z":"30"}
+  {"R_expected":"2.3701018925e-09","h_idx":"0","i":"1123","j":"152","kind":"open","z":"30"}
+  {"R_expected":"3.5150130029e-10","h_idx":"0","i":"377","j":"329","kind":"open","z":"30"}
+  {"R_expected":"2.7964908167e-10","h_idx":"0","i":"1117","j":"1071","kind":"open","z":"30"}
+  {"R_expected":"4.4270001553e-10","h_idx":"0","i":"1093","j":"131","kind":"open","z":"30"}
+  {"R_expected":"1.3481088468e-09","h_idx":"0","i":"664","j":"470","kind":"open","z":"30"}
+  {"R_expected":"5.0323740730e-09","h_idx":"0","i":"339","j":"464","kind":"open","z":"30"}
+  {"R_expected":"1.0723125721e-09","h_idx":"0","i":"394","j":"1064","kind":"open","z":"30"}
+  {"R_expected":"NaN","h_idx":"0","i":"529","j":"773","kind":"building","z":"30"}
+  {"R_expected":"NaN","h_idx":"0","i":"208","j":"707","kind":"building","z":"30"}
+  {"R_expected":"NaN","h_idx":"0","i":"657","j":"821","kind":"building","z":"30"}
+  {"R_expected":"NaN","h_idx":"0","i":"420","j":"739","kind":"building","z":"30"}
+  {"R_expected":"NaN","h_idx":"0","i":"525","j":"422","kind":"building","z":"30"}
+  {"R_expected":"NaN","h_idx":"0","i":"339","j":"586","kind":"building","z":"30"}
+  {"R_expected":"NaN","h_idx":"0","i":"854","j":"781","kind":"building","z":"30"}
+  {"R_expected":"NaN","h_idx":"0","i":"117","j":"929","kind":"building","z":"30"}
+  {"R_expected":"NaN","h_idx":"0","i":"366","j":"261","kind":"building","z":"30"}
+  {"R_expected":"NaN","h_idx":"0","i":"40","j":"1080","kind":"building","z":"30"}
+  {"R_expected":"1.5965444244e-10","h_idx":"30","i":"276","j":"1151","kind":"open","z":"60"}
+  {"R_expected":"4.3106435088e-10","h_idx":"30","i":"610","j":"1192","kind":"open","z":"60"}
+  {"R_expected":"3.6078989796e-10","h_idx":"30","i":"125","j":"664","kind":"open","z":"60"}
+  {"R_expected":"7.9688472487e-10","h_idx":"30","i":"585","j":"1094","kind":"open","z":"60"}
+  {"R_expected":"9.0522611629e-10","h_idx":"30","i":"696","j":"275","kind":"open","z":"60"}
+  {"R_expected":"4.9686055270e-10","h_idx":"30","i":"784","j":"203","kind":"open","z":"60"}
+  {"R_expected":"4.6228476602e-10","h_idx":"30","i":"1177","j":"1053","kind":"open","z":"60"}
+  {"R_expected":"7.5544187572e-10","h_idx":"30","i":"1108","j":"539","kind":"open","z":"60"}
+  {"R_expected":"4.2754619289e-10","h_idx":"30","i":"168","j":"47","kind":"open","z":"60"}
+  {"R_expected":"3.0442877108e-09","h_idx":"30","i":"979","j":"894","kind":"open","z":"60"}
+  {"R_expected":"4.7151166305e-10","h_idx":"30","i":"282","j":"658","kind":"open","z":"60"}
+  {"R_expected":"1.1511983589e-09","h_idx":"30","i":"197","j":"229","kind":"open","z":"60"}
+  {"R_expected":"4.7024872885e-10","h_idx":"30","i":"854","j":"1089","kind":"open","z":"60"}
+  {"R_expected":"8.3605267154e-10","h_idx":"30","i":"326","j":"678","kind":"open","z":"60"}
+  {"R_expected":"3.2156957652e-10","h_idx":"30","i":"689","j":"703","kind":"open","z":"60"}
+  {"R_expected":"1.1280930634e-09","h_idx":"30","i":"368","j":"1","kind":"open","z":"60"}
+  {"R_expected":"1.4326129172e-09","h_idx":"30","i":"408","j":"400","kind":"open","z":"60"}
+  {"R_expected":"9.7771950258e-11","h_idx":"30","i":"310","j":"457","kind":"open","z":"60"}
+  {"R_expected":"2.5686430760e-10","h_idx":"30","i":"372","j":"863","kind":"open","z":"60"}
+  {"R_expected":"2.4835207224e-09","h_idx":"30","i":"198","j":"268","kind":"open","z":"60"}
+  {"R_expected":"2.8822749742e-10","h_idx":"30","i":"372","j":"582","kind":"open","z":"60"}
+  {"R_expected":"1.9398792295e-10","h_idx":"30","i":"1032","j":"1192","kind":"open","z":"60"}
+  {"R_expected":"5.0343679225e-10","h_idx":"30","i":"543","j":"66","kind":"open","z":"60"}
+  {"R_expected":"5.0559800790e-10","h_idx":"30","i":"1107","j":"1010","kind":"open","z":"60"}
+  {"R_expected":"6.1856897382e-10","h_idx":"30","i":"663","j":"1189","kind":"open","z":"60"}
+  {"R_expected":"2.0788716582e-10","h_idx":"30","i":"879","j":"1104","kind":"open","z":"60"}
+  {"R_expected":"2.8564048349e-10","h_idx":"30","i":"1045","j":"182","kind":"open","z":"60"}
+  {"R_expected":"2.1771920378e-10","h_idx":"30","i":"641","j":"793","kind":"open","z":"60"}
+  {"R_expected":"3.4446365205e-10","h_idx":"30","i":"177","j":"802","kind":"open","z":"60"}
+  {"R_expected":"3.3314651038e-10","h_idx":"30","i":"234","j":"945","kind":"open","z":"60"}
+  {"R_expected":"4.4318487769e-10","h_idx":"30","i":"239","j":"623","kind":"open","z":"60"}
+  {"R_expected":"6.1958904674e-10","h_idx":"30","i":"601","j":"825","kind":"open","z":"60"}
+  {"R_expected":"4.7468018405e-10","h_idx":"30","i":"747","j":"1015","kind":"open","z":"60"}
+  {"R_expected":"5.8748933496e-10","h_idx":"30","i":"199","j":"1162","kind":"open","z":"60"}
+  {"R_expected":"2.3110664771e-10","h_idx":"30","i":"162","j":"1022","kind":"open","z":"60"}
+  {"R_expected":"5.8785931678e-10","h_idx":"30","i":"1087","j":"645","kind":"open","z":"60"}
+  {"R_expected":"4.9503279254e-10","h_idx":"30","i":"725","j":"677","kind":"open","z":"60"}
+  {"R_expected":"3.0302135801e-10","h_idx":"30","i":"929","j":"924","kind":"open","z":"60"}
+  {"R_expected":"9.3538143897e-10","h_idx":"30","i":"1054","j":"476","kind":"open","z":"60"}
+  {"R_expected":"6.4157557045e-10","h_idx":"30","i":"151","j":"260","kind":"open","z":"60"}
+  {"R_expected":"4.4308942626e-10","h_idx":"30","i":"802","j":"705","kind":"open","z":"60"}
+  {"R_expected":"1.0386124183e-09","h_idx":"30","i":"512","j":"346","kind":"open","z":"60"}
+  {"R_expected":"4.0067171803e-10","h_idx":"30","i":"20","j":"482","kind":"open","z":"60"}
+  {"R_expected":"2.7886751242e-10","h_idx":"30","i":"362","j":"968","kind":"open","z":"60"}
+  {"R_expected":"4.8604165137e-10","h_idx":"30","i":"487","j":"283","kind":"open","z":"60"}
+  {"R_expected":"4.2261419364e-10","h_idx":"30","i":"1091","j":"1129","kind":"open","z":"60"}
+  {"R_expected":"5.1146464841e-10","h_idx":"30","i":"642","j":"861","kind":"open","z":"60"}
+  {"R_expected":"4.3329145827e-10","h_idx":"30","i":"150","j":"360","kind":"open","z":"60"}
+  {"R_expected":"3.2018537821e-10","h_idx":"30","i":"554","j":"532","kind":"open","z":"60"}
+  {"R_expected":"3.4854880093e-10","h_idx":"30","i":"815","j":"1168","kind":"open","z":"60"}
+  {"R_expected":"2.9661695322e-10","h_idx":"30","i":"98","j":"641","kind":"open","z":"60"}
+  {"R_expected":"3.2965616348e-10","h_idx":"30","i":"400","j":"472","kind":"open","z":"60"}
+  {"R_expected":"6.7184785513e-11","h_idx":"30","i":"343","j":"665","kind":"open","z":"60"}
+  {"R_expected":"7.4585249088e-10","h_idx":"30","i":"595","j":"502","kind":"open","z":"60"}
+  {"R_expected":"4.1228526149e-10","h_idx":"30","i":"1073","j":"644","kind":"open","z":"60"}
+  {"R_expected":"2.3415644423e-10","h_idx":"30","i":"1033","j":"237","kind":"open","z":"60"}
+  {"R_expected":"5.2196486022e-10","h_idx":"30","i":"371","j":"455","kind":"open","z":"60"}
+  {"R_expected":"4.6759618400e-10","h_idx":"30","i":"487","j":"888","kind":"open","z":"60"}
+  {"R_expected":"3.5158864709e-10","h_idx":"30","i":"265","j":"243","kind":"open","z":"60"}
+  {"R_expected":"4.1071607226e-10","h_idx":"30","i":"382","j":"365","kind":"open","z":"60"}
+  {"R_expected":"NaN","h_idx":"30","i":"273","j":"1179","kind":"building","z":"60"}
+  {"R_expected":"NaN","h_idx":"30","i":"89","j":"1176","kind":"building","z":"60"}
+  {"R_expected":"NaN","h_idx":"30","i":"664","j":"761","kind":"building","z":"60"}
+  {"R_expected":"NaN","h_idx":"30","i":"1014","j":"1139","kind":"building","z":"60"}
+  {"R_expected":"NaN","h_idx":"30","i":"85","j":"792","kind":"building","z":"60"}
+  {"R_expected":"NaN","h_idx":"30","i":"17","j":"999","kind":"building","z":"60"}
+  {"R_expected":"NaN","h_idx":"30","i":"101","j":"903","kind":"building","z":"60"}
+  {"R_expected":"NaN","h_idx":"30","i":"86","j":"851","kind":"building","z":"60"}
+  {"R_expected":"NaN","h_idx":"30","i":"269","j":"1169","kind":"building","z":"60"}
+  {"R_expected":"NaN","h_idx":"30","i":"243","j":"1093","kind":"building","z":"60"}
+  {"R_expected":"5.2210658019e-09","h_idx":"60","i":"40","j":"210","kind":"open","z":"90"}
+  {"R_expected":"1.3693275680e-10","h_idx":"60","i":"268","j":"1120","kind":"open","z":"90"}
+  {"R_expected":"4.9356132514e-09","h_idx":"60","i":"492","j":"226","kind":"open","z":"90"}
+  {"R_expected":"3.0897528980e-10","h_idx":"60","i":"488","j":"596","kind":"open","z":"90"}
+  {"R_expected":"4.4401360366e-10","h_idx":"60","i":"626","j":"802","kind":"open","z":"90"}
+  {"R_expected":"3.7020198018e-10","h_idx":"60","i":"250","j":"217","kind":"open","z":"90"}
+  {"R_expected":"3.9586003919e-10","h_idx":"60","i":"872","j":"295","kind":"open","z":"90"}
+  {"R_expected":"6.1325611256e-10","h_idx":"60","i":"102","j":"372","kind":"open","z":"90"}
+  {"R_expected":"3.7202640968e-10","h_idx":"60","i":"206","j":"227","kind":"open","z":"90"}
+  {"R_expected":"4.4272985278e-10","h_idx":"60","i":"1067","j":"151","kind":"open","z":"90"}
+  {"R_expected":"3.9880893032e-10","h_idx":"60","i":"372","j":"674","kind":"open","z":"90"}
+  {"R_expected":"2.6857840951e-10","h_idx":"60","i":"193","j":"828","kind":"open","z":"90"}
+  {"R_expected":"5.9078236747e-10","h_idx":"60","i":"782","j":"561","kind":"open","z":"90"}
+  {"R_expected":"2.0879875606e-10","h_idx":"60","i":"175","j":"1108","kind":"open","z":"90"}
+  {"R_expected":"2.7126373370e-10","h_idx":"60","i":"438","j":"319","kind":"open","z":"90"}
+  {"R_expected":"5.8705740269e-10","h_idx":"60","i":"223","j":"930","kind":"open","z":"90"}
+  {"R_expected":"4.6490991612e-10","h_idx":"60","i":"1166","j":"61","kind":"open","z":"90"}
+  {"R_expected":"4.9437920424e-10","h_idx":"60","i":"742","j":"227","kind":"open","z":"90"}
+  {"R_expected":"3.4933012039e-10","h_idx":"60","i":"302","j":"1058","kind":"open","z":"90"}
+  {"R_expected":"2.6171664835e-10","h_idx":"60","i":"892","j":"709","kind":"open","z":"90"}
+  {"R_expected":"3.8768524502e-10","h_idx":"60","i":"582","j":"109","kind":"open","z":"90"}
+  {"R_expected":"7.3587708149e-10","h_idx":"60","i":"660","j":"1092","kind":"open","z":"90"}
+  {"R_expected":"1.3354845008e-09","h_idx":"60","i":"296","j":"1076","kind":"open","z":"90"}
+  {"R_expected":"4.9904252952e-10","h_idx":"60","i":"890","j":"13","kind":"open","z":"90"}
+  {"R_expected":"4.4499096075e-10","h_idx":"60","i":"694","j":"718","kind":"open","z":"90"}
+  {"R_expected":"1.2082738976e-10","h_idx":"60","i":"448","j":"782","kind":"open","z":"90"}
+  {"R_expected":"3.7550795806e-10","h_idx":"60","i":"305","j":"243","kind":"open","z":"90"}
+  {"R_expected":"4.9440918026e-10","h_idx":"60","i":"1005","j":"156","kind":"open","z":"90"}
+  {"R_expected":"1.0628112834e-09","h_idx":"60","i":"154","j":"1059","kind":"open","z":"90"}
+  {"R_expected":"4.4576575764e-10","h_idx":"60","i":"879","j":"699","kind":"open","z":"90"}
+  {"R_expected":"6.1918609129e-10","h_idx":"60","i":"125","j":"1013","kind":"open","z":"90"}
+  {"R_expected":"2.9291949422e-10","h_idx":"60","i":"553","j":"360","kind":"open","z":"90"}
+  {"R_expected":"3.2174757303e-10","h_idx":"60","i":"232","j":"290","kind":"open","z":"90"}
+  {"R_expected":"3.2212001955e-09","h_idx":"60","i":"1124","j":"148","kind":"open","z":"90"}
+  {"R_expected":"7.2774514193e-10","h_idx":"60","i":"515","j":"1121","kind":"open","z":"90"}
+  {"R_expected":"4.6454767810e-10","h_idx":"60","i":"467","j":"63","kind":"open","z":"90"}
+  {"R_expected":"4.1073272561e-10","h_idx":"60","i":"263","j":"47","kind":"open","z":"90"}
+  {"R_expected":"1.7273442399e-10","h_idx":"60","i":"1036","j":"134","kind":"open","z":"90"}
+  {"R_expected":"2.7971819305e-10","h_idx":"60","i":"1018","j":"878","kind":"open","z":"90"}
+  {"R_expected":"1.1638796593e-09","h_idx":"60","i":"845","j":"542","kind":"open","z":"90"}
+  {"R_expected":"1.1160405933e-09","h_idx":"60","i":"93","j":"75","kind":"open","z":"90"}
+  {"R_expected":"3.0938757112e-10","h_idx":"60","i":"1192","j":"333","kind":"open","z":"90"}
+  {"R_expected":"2.9143831792e-10","h_idx":"60","i":"1103","j":"1169","kind":"open","z":"90"}
+  {"R_expected":"7.6071837718e-10","h_idx":"60","i":"936","j":"987","kind":"open","z":"90"}
+  {"R_expected":"4.2934722444e-10","h_idx":"60","i":"423","j":"651","kind":"open","z":"90"}
+  {"R_expected":"4.4798223464e-10","h_idx":"60","i":"559","j":"419","kind":"open","z":"90"}
+  {"R_expected":"4.4629086537e-10","h_idx":"60","i":"522","j":"541","kind":"open","z":"90"}
+  {"R_expected":"4.0619493880e-10","h_idx":"60","i":"832","j":"802","kind":"open","z":"90"}
+  {"R_expected":"3.0228522463e-10","h_idx":"60","i":"847","j":"817","kind":"open","z":"90"}
+  {"R_expected":"3.7749786630e-10","h_idx":"60","i":"285","j":"126","kind":"open","z":"90"}
+  {"R_expected":"3.1340943729e-10","h_idx":"60","i":"129","j":"16","kind":"open","z":"90"}
+  {"R_expected":"2.0562430925e-10","h_idx":"60","i":"862","j":"332","kind":"open","z":"90"}
+  {"R_expected":"2.7678140335e-10","h_idx":"60","i":"783","j":"1052","kind":"open","z":"90"}
+  {"R_expected":"2.7895905030e-10","h_idx":"60","i":"607","j":"192","kind":"open","z":"90"}
+  {"R_expected":"4.5199169407e-10","h_idx":"60","i":"329","j":"773","kind":"open","z":"90"}
+  {"R_expected":"2.7120183876e-10","h_idx":"60","i":"71","j":"643","kind":"open","z":"90"}
+  {"R_expected":"3.8672962055e-10","h_idx":"60","i":"1121","j":"911","kind":"open","z":"90"}
+  {"R_expected":"2.1546071871e-10","h_idx":"60","i":"389","j":"114","kind":"open","z":"90"}
+  {"R_expected":"3.5143507549e-10","h_idx":"60","i":"778","j":"432","kind":"open","z":"90"}
+  {"R_expected":"3.3206462580e-10","h_idx":"60","i":"948","j":"1057","kind":"open","z":"90"}
+  {"R_expected":"NaN","h_idx":"60","i":"257","j":"1188","kind":"building","z":"90"}
+  {"R_expected":"NaN","h_idx":"60","i":"218","j":"1092","kind":"building","z":"90"}
+  {"R_expected":"NaN","h_idx":"60","i":"132","j":"980","kind":"building","z":"90"}
+  {"R_expected":"NaN","h_idx":"60","i":"523","j":"765","kind":"building","z":"90"}
+  {"R_expected":"NaN","h_idx":"60","i":"144","j":"1002","kind":"building","z":"90"}
+  {"R_expected":"NaN","h_idx":"60","i":"226","j":"1096","kind":"building","z":"90"}
+  {"R_expected":"NaN","h_idx":"60","i":"544","j":"756","kind":"building","z":"90"}
+  {"R_expected":"NaN","h_idx":"60","i":"239","j":"1076","kind":"building","z":"90"}
+  {"R_expected":"NaN","h_idx":"60","i":"257","j":"1180","kind":"building","z":"90"}
+  {"R_expected":"NaN","h_idx":"60","i":"535","j":"768","kind":"building","z":"90"}
+summary_json.exists: true
+summary_json.top_level_keys: ["scene","r_units","shape","r_norm","r_mean","r_median","r_min","r_max","n_finite_cells","n_obstacle_cells","finite_ratio","layer_mean_h30","layer_mean_h90","layer_mean_monotonic_decreasing","anchors","city","formulas","simplifications"]
+summary_json.r_mean.present: true
+summary_json.r_median.present: true
+summary_json.r_norm.present: true
+R.reference_shape: [1200,1200,61]
+R.reference_dtype: unavailable: full R array is not stored in allowed inputs
+R.reference_nan_count: 2921211
+R.reference_finite_count: 84918789
+R.reference_min: 2.1457998572449455e-11
+R.reference_max: 8.254288808018373e-09
+
+SECTION 4: ps_check
+ps_check_dir: C:\Users\kano\Desktop\ffjj\lib\03_场景\A_真实深圳南山\ps_check
+ps_check_dir.exists: true
+ps_check.files: ["README.md","ps_probes.csv","ps_summary.json","ps_windows.npz"]
+ps_check.global_window_probe_files: {"global":["ps_summary.json"],"probe":["ps_probes.csv"],"window":["ps_windows.npz"]}
+ps_check.all_three_classes_present: true
+
+SECTION 5: missing or abnormal
+missing_or_abnormal: city.npz key R (full risk matrix is not stored in city.npz)
