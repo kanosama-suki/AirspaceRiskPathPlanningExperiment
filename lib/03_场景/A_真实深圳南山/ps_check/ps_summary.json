@@ -1,0 +1,60 @@
+{
+  "unit": "drones_table1_shielding_scale_0_10",
+  "formula": "Ps = P_S_SCALE * min(1, coverage / P_S_C_REF); coverage = mean of building_footprint over PS_WINDOW x PS_WINDOW box, reflect padding, anchored at the cell",
+  "P_S_SCALE": 10,
+  "P_S_C_REF": 1,
+  "P_S_WINDOW": 21,
+  "padding": "reflect",
+  "shape": [
+    1200,
+    1200
+  ],
+  "ps_min": 0.0,
+  "ps_max": 10.0,
+  "ps_mean": 2.154196428571429,
+  "ps_median": 1.360544217687075,
+  "n_cells_full_shielding": 18926,
+  "files": {
+    "windows": "ps_windows.npz",
+    "probes": "ps_probes.csv"
+  },
+  "windows": [
+    {
+      "file": "ps_win_h030_highrisk.npz",
+      "i0": 601,
+      "j0": 936,
+      "z": 30
+    },
+    {
+      "file": "ps_win_h030_lowrisk.npz",
+      "i0": 223,
+      "j0": 1102,
+      "z": 30
+    },
+    {
+      "file": "ps_win_h060_highrisk.npz",
+      "i0": 61,
+      "j0": 209,
+      "z": 60
+    },
+    {
+      "file": "ps_win_h060_lowrisk.npz",
+      "i0": 407,
+      "j0": 691,
+      "z": 60
+    },
+    {
+      "file": "ps_win_h090_highrisk.npz",
+      "i0": 366,
+      "j0": 508,
+      "z": 90
+    },
+    {
+      "file": "ps_win_h090_lowrisk.npz",
+      "i0": 407,
+      "j0": 691,
+      "z": 90
+    }
+  ],
+  "note": "Ps 不含高度维：同一 (i,j) 在所有 61 层取值相同。"
+}

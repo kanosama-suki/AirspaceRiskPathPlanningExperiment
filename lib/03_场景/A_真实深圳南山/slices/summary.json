@@ -1,0 +1,46 @@
+{
+  "scene": "real:osm_buildings+population",
+  "r_units": "casualties per flight hour",
+  "shape": [
+    1200,
+    1200,
+    61
+  ],
+  "r_norm": 4.31519076827765e-10,
+  "r_mean": 5.748326583935336e-10,
+  "r_median": 4.31519076827765e-10,
+  "r_min": 2.1457998572449455e-11,
+  "r_max": 8.254288808018373e-09,
+  "n_finite_cells": 84918789,
+  "n_obstacle_cells": 2921211,
+  "finite_ratio": 0.9667439549180328,
+  "layer_mean_h30": 6.256230786076545e-10,
+  "layer_mean_h90": 5.516933366420006e-10,
+  "layer_mean_monotonic_decreasing": true,
+  "anchors": {
+    "v_p_ter_m_s": 4.281501814003186,
+    "E_crash_p_J": 84.32378580323783,
+    "E_crash_b_h30_J": 2704.7999999999997,
+    "A_c_b_h30_m2": 3.7532642751082506,
+    "A_c_b_h90_m2": 2.829719657490776
+  },
+  "city": {
+    "n_buildings": 546,
+    "building_ratio": 0.21540555555555554,
+    "voxel_ratio": 0.033256045081967216,
+    "pop": {
+      "min": 0.0009157739696092904,
+      "max": 0.054771486669778824,
+      "mean": 0.017064208164811134,
+      "median": 0.017704304307699203,
+      "sum_people": 24572.459757328033
+    }
+  },
+  "formulas": "式(5)~(10) 主论文 + Drones 式(11)(12)(16)(19)(21)(22)(30)~(34)",
+  "simplifications": [
+    "E_crash,b 用自由落体 v=sqrt(2gh)，未计水平分量与空气阻力（任务指定）",
+    "v_c,p^y 取开伞终端速度 v_p^ter（Drones 式22 理想模型）",
+    "P_s 由局部建筑覆盖率导出（Drones 表1 0~10 遮蔽刻度，简化参数）",
+    "r_norm = min(排除建筑后的均值, 中位数)，式(19) 口径"
+  ]
+}

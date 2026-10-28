@@ -1,0 +1,201 @@
+{
+  "_说明": "本文件是全部参数的唯一来源。算法代码只许从这里读，不要在脚本里另写常量。",
+  "table1": {
+    "P_LOC": 1e-7,
+    "G": 9.8,
+    "ALPHA": 34000,
+    "BETA": 34,
+    "MASS": 9.2,
+    "V_CRUISE": 20,
+    "note": "表1 运行风险矩阵关键参数（主论文表1）"
+  },
+  "table2": {
+    "SCENE_SIZE": [
+      1200,
+      1200
+    ],
+    "GRID_SIZE": 1,
+    "N_I": 1200,
+    "N_J": 1200,
+    "H_LOW": 30,
+    "H_HIGH": 90,
+    "N_H": 61,
+    "STEP": 10,
+    "THETA_MAX": 1.0471975511965976,
+    "ALPHA1": 0.4,
+    "ALPHA2": 0.6,
+    "START1": [
+      100,
+      1100,
+      30
+    ],
+    "GOAL1": [
+      1100,
+      100,
+      30
+    ],
+    "START2": [
+      900,
+      1150,
+      30
+    ],
+    "GOAL2": [
+      10,
+      10,
+      30
+    ],
+    "note_start2": "START2 x=900 以表2为准（正文3.2节写950系论文笔误）",
+    "note": "表2 仿真场景与路径规划算法参数（主论文表2）"
+  },
+  "supplementary": {
+    "RHO": 1.225,
+    "H_P": 1.8,
+    "R_P": 0.3,
+    "R_U": 0.45,
+    "C_D_U": 0.8,
+    "S_U": 0.046,
+    "C_D_P": 1.1,
+    "S_P": 7.3,
+    "T_1": 0.7,
+    "ETA": 0.95,
+    "P_S_SCALE": 10,
+    "P_S_C_REF": 1,
+    "P_S_WINDOW": 21,
+    "A_CAS_REF": 2.84,
+    "SQRT_ALPHA_BETA": 31.622776601683793,
+    "R_PLUS_R_U": 0.75,
+    "source": "Drones 2024,8(11):678 表1~表3（ρ、h_p、r_p、η=95%、M350 参数）",
+    "P_s_note": "Ps(i,j) = P_S_SCALE * min(1, cov/P_S_C_REF)；cov = building_footprint 在 P_S_WINDOW×P_S_WINDOW 方形窗口内的均值，窗口以该格为中心，边界用 reflect 填充。Drones 表1 的 0~10 遮蔽刻度（α=3.4e4 J 在 P_s=6 标定 P_f=50%）。Ps 无高度维。校验数据见各场景 ps_check/",
+    "A_CAS_note": "A_CAS 由 Drones 式(11)(12)(21) 计算，不设常数；A_CAS_REF=2.84 仅作量级锚点"
+  },
+  "citygen": {
+    "RANDOM_SEED": 42,
+    "CLEAR_RADIUS": 30,
+    "BUILDING_SIZE_RANGE": [
+      20,
+      80
+    ],
+    "NOISE_RES": 48,
+    "POP_MAX": 0.1,
+    "BUILDING_DENSITY_FACTOR": 0.15,
+    "ROAD_BOOST": 1.5,
+    "BOUNDARY_BOOST": 1.2,
+    "AVENUE_COUNT": 2,
+    "AVENUE_WIDTH": 15,
+    "REGION_PARAMS": {
+      "commercial": {
+        "weight": 0.2,
+        "coverage": [
+          0.35,
+          0.5
+        ],
+        "height": [
+          40,
+          80
+        ],
+        "density": 0.035
+      },
+      "residential": {
+        "weight": 0.3,
+        "coverage": [
+          0.25,
+          0.4
+        ],
+        "height": [
+          25,
+          60
+        ],
+        "density": 0.025
+      },
+      "industrial": {
+        "weight": 0.15,
+        "coverage": [
+          0.2,
+          0.35
+        ],
+        "height": [
+          20,
+          45
+        ],
+        "density": 0.014
+      },
+      "suburban": {
+        "weight": 0.1,
+        "coverage": [
+          0.1,
+          0.2
+        ],
+        "height": [
+          20,
+          40
+        ],
+        "density": 0.009
+      },
+      "park": {
+        "weight": 0.15,
+        "coverage": [
+          0.02,
+          0.06
+        ],
+        "height": [
+          10,
+          20
+        ],
+        "density": 0.005
+      },
+      "plaza": {
+        "weight": 0.1,
+        "coverage": [
+          0.01,
+          0.04
+        ],
+        "height": [
+          15,
+          25
+        ],
+        "density": 0.003
+      }
+    },
+    "note": "程序化随机城市生成参数（简化默认；真实数据就绪时走 data_src 适配路径）"
+  },
+  "coords": {
+    "axes_order": "i,j,h_idx",
+    "convention": "R[i,j,h_idx] <-> (x,y,z)=(i*GRID, j*GRID, 30+h_idx); i->x, j->y, h_idx->z",
+    "origin": [
+      0,
+      0,
+      30
+    ],
+    "resolution": 1
+  },
+  "paths": {
+    "NOTE": "相对本文件所在目录（04_数据）解析",
+    "scene_A": "A_真实深圳南山",
+    "scene_B": "B_随机生成城市",
+    "city_npz": "<scene>/city.npz",
+    "slices_dir": "<scene>/slices",
+    "pattern": "同一套参数适用于两套场景；切换场景只改 scene_A / scene_B"
+  },
+  "scenes": {
+    "A": {
+      "name": "真实深圳南山",
+      "file": "A_真实深圳南山/city.npz",
+      "provenance": "OpenStreetMap 真实建筑",
+      "window_center_lat": 22.507636757599712,
+      "window_center_lon": 113.925305934472,
+      "n_buildings": 546,
+      "building_ratio": 0.21540555555555554,
+      "voxel_ratio": 0.033256045081967216
+    },
+    "B": {
+      "name": "随机生成城市",
+      "file": "B_随机生成城市/city.npz",
+      "provenance": "Voronoi 密度分区程序化生成",
+      "generator": "build_city.py && 合成模式",
+      "seed": 42,
+      "n_buildings": 219,
+      "building_ratio": 0.27,
+      "voxel_ratio": 0.0958
+    }
+  }
+}

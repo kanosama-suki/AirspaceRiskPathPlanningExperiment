@@ -1,0 +1,58 @@
+{
+  "windows": [
+    {
+      "file": "win_h030_highrisk.npz",
+      "z": 30,
+      "i0": 497,
+      "j0": 255,
+      "tag": "highrisk",
+      "n_building_cells": 644,
+      "r_mean_in_window": 9.048200411143625e-9
+    },
+    {
+      "file": "win_h030_lowrisk.npz",
+      "z": 30,
+      "i0": 466,
+      "j0": 1081,
+      "tag": "lowrisk",
+      "n_building_cells": 0,
+      "r_mean_in_window": 1.412453595923957e-12
+    },
+    {
+      "file": "win_h060_highrisk.npz",
+      "z": 60,
+      "i0": 497,
+      "j0": 255,
+      "tag": "highrisk",
+      "n_building_cells": 644,
+      "r_mean_in_window": 8.560340880592321e-9
+    },
+    {
+      "file": "win_h060_lowrisk.npz",
+      "z": 60,
+      "i0": 466,
+      "j0": 1081,
+      "tag": "lowrisk",
+      "n_building_cells": 0,
+      "r_mean_in_window": 1.4336541936249558e-12
+    },
+    {
+      "file": "win_h090_highrisk.npz",
+      "z": 90,
+      "i0": 0,
+      "j0": 0,
+      "tag": "highrisk",
+      "n_building_cells": 0,
+      "r_mean_in_window": 7.774596078036211e-9
+    },
+    {
+      "file": "win_h090_lowrisk.npz",
+      "z": 90,
+      "i0": 466,
+      "j0": 1081,
+      "tag": "lowrisk",
+      "n_building_cells": 0,
+      "r_mean_in_window": 1.457973824135761e-12
+    }
+  ]
+}
