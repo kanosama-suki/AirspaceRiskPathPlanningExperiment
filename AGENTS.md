@@ -53,10 +53,10 @@ git diff -- 01_论文原文 02_公式提取 03_场景 04_任务书
 5. 汇报：改动文件 + 验证命令 + 结果。
 
 ## 7. 当前状态
-里程碑：M3 / 标准 A* 与原版 RiskA* 已实现并完成 A/B 任务 1 冒烟；RC-A*、RRT*、Informed RRT* 尚未开始
-已完成：M2 公共层与真实 R 数据流接口；A* 几何距离搜索与 RiskA* 纯风险积分搜索均注册到 PLANNERS；A* 7 项与 RiskA* 10 项小地图测试；A/B 任务 1 两算法冒烟均 success；LOS 前后数据和失败重试保留在 raw；全套 35 项测试与只读目录检查通过
-下一步：按原论文实现 RC-A*，先做小地图手算测试
-阻塞：RiskA* 使用 config 无对应键的风险裁剪 `eps`，当前按 float64 机器 epsilon 处理并记录在 assumptions；本次 A/B 最小 `R/R_norm` 均高于该下界，未影响映射。冒烟运行只证明可运行，不构成算法性能比较或排名；B summary 差异仍按 assumptions 披露
+里程碑：M3 / A*、RiskA*、RC-A*、RRT*、Informed RRT* 已实现并完成小地图测试
+已完成：M2 公共层与真实 R 数据流接口；五个当前规划器均注册到 `PLANNERS`；RC-A* A/B 任务 1 冒烟均 success；RRT* 与 Informed RRT* 的 A 任务 1 seed 0/1/2 均按 60 s 预算如实记录；两者 seed 0 均找到并保留无碰撞 incumbent 路径，seed 1/2 未在预算内找到可行路径；失败和早期性能运行均保留在 raw；Informed RRT* 使用 Gammell 2014 路径长度椭球采样并复用 RRT* 树逻辑；全套测试和编译检查已通过
+下一步：按正式实验矩阵补齐 A/B × 任务 1/2 × 五算法 × seeds 0–19，先完成统一预算与成功率复核
+阻塞：RiskA* 使用 config 无对应键的风险裁剪 `eps`，当前按 float64 机器 epsilon 处理并记录在 assumptions；本次 A/B 最小 `R/R_norm` 均高于该下界，未影响映射。RC-A* 大包围盒中位数采用确定性三维等距采样以保证冒烟可运行，均值仍为精确前缀和，已在冒烟日志记录；RRT* 60 s 冒烟成功率不足以进入算法排名，需按正式预算/种子矩阵复跑。冒烟运行只证明可运行，不构成算法性能比较或排名；B summary 差异仍按 assumptions 披露
 更新日期：2026-10-29
 
 ## 8. 不确定时

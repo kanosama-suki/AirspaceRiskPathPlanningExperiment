@@ -1,0 +1,216 @@
+# 场景 A Informed RRT* 任务 1 冒烟
+采样：找到可行解前全空间均匀采样；找到后使用以起终点为焦点的路径长度椭球。
+起点：(100.0, 1100.0, 30.0)
+终点：(1100.0, 100.0, 30.0)
+预算：每个 seed 60 s。
+
+## seed 0
+状态：timeout
+failure_reason：timeout
+首次可行时间：11.503208199996152 s
+树节点数：48951
+采样次数：99943
+椭球启用次数：57475
+椭球接受样本数：57446
+全空间回退次数：29
+全空间样本数：42497
+最短已发现路径长度：1757.698269648305
+最终返回路径长度：1757.2626161314317
+综合代价：702.9237170351525
+运行时间：60.002324599998246 s
+
+## seed 1
+状态：timeout
+failure_reason：timeout
+首次可行时间：- s
+树节点数：54916
+采样次数：109065
+椭球启用次数：0
+椭球接受样本数：0
+全空间回退次数：0
+全空间样本数：109065
+最短已发现路径长度：inf
+最终返回路径长度：nan
+综合代价：nan
+运行时间：60.00027730000147 s
+
+## seed 2
+状态：timeout
+failure_reason：timeout
+首次可行时间：- s
+树节点数：55530
+采样次数：109648
+椭球启用次数：0
+椭球接受样本数：0
+全空间回退次数：0
+全空间样本数：109648
+最短已发现路径长度：inf
+最终返回路径长度：nan
+综合代价：nan
+运行时间：60.00000949999958 s
+
+## Rerun after best_length tracking update
+Run timestamp: 2026-10-29T20:41:14.136014+08:00
+Config: lib/03_场景/config.json; scene A; mission 1; time budget 60 s per seed.
+
+### seed 0
+status: timeout
+failure_reason: timeout
+first_feasible_time_s: 11.351722600003995
+tree_nodes: 48929
+samples: 99995
+ellipsoid_enabled_count: 57527
+ellipsoid_accepted_samples: 57501
+fallback_count: 26
+full_space_sample_count: 42494
+best_feasible_path_length_m: 1757.6375627618154
+returned_path_length_m: 1757.6375627618154
+composite_cost: 703.0736294052822
+risk_expected: 1.3261274659343225e-11
+runtime_s: 60.00271200000134
+iterations_or_expansions: 99995
+
+### seed 1
+status: timeout
+failure_reason: timeout
+first_feasible_time_s: -
+tree_nodes: 55649
+samples: 110212
+ellipsoid_enabled_count: 0
+ellipsoid_accepted_samples: 0
+fallback_count: 0
+full_space_sample_count: 110212
+best_feasible_path_length_m: inf
+returned_path_length_m: -
+composite_cost: -
+risk_expected: -
+runtime_s: 60.00003519999882
+iterations_or_expansions: 110212
+
+### seed 2
+status: timeout
+failure_reason: timeout
+first_feasible_time_s: -
+tree_nodes: 55684
+samples: 109897
+ellipsoid_enabled_count: 0
+ellipsoid_accepted_samples: 0
+fallback_count: 0
+full_space_sample_count: 109897
+best_feasible_path_length_m: inf
+returned_path_length_m: -
+composite_cost: -
+risk_expected: -
+runtime_s: 60.0000469000006
+iterations_or_expansions: 109897
+
+## Final rerun after parent goal-rewire tracking update
+Run timestamp: 2026-10-29T20:46:45.215868+08:00
+Config: lib/03_场景/config.json; scene A; mission 1; time budget 60 s per seed.
+
+### seed 0
+status: timeout
+failure_reason: timeout
+first_feasible_time_s: 11.595519499998773
+tree_nodes: 48387
+samples: 99108
+ellipsoid_enabled_count: 56640
+ellipsoid_accepted_samples: 56614
+fallback_count: 26
+full_space_sample_count: 42494
+best_feasible_path_length_m: 1757.6375627618154
+returned_path_length_m: 1757.6375627618154
+composite_cost: 703.0736294052822
+risk_expected: 1.3261274659343225e-11
+runtime_s: 60.00258229999599
+iterations_or_expansions: 99108
+
+### seed 1
+status: timeout
+failure_reason: timeout
+first_feasible_time_s: -
+tree_nodes: 42166
+samples: 87801
+ellipsoid_enabled_count: 0
+ellipsoid_accepted_samples: 0
+fallback_count: 0
+full_space_sample_count: 87801
+best_feasible_path_length_m: inf
+returned_path_length_m: -
+composite_cost: -
+risk_expected: -
+runtime_s: 60.00069130000338
+iterations_or_expansions: 87801
+
+### seed 2
+status: timeout
+failure_reason: timeout
+first_feasible_time_s: -
+tree_nodes: 35671
+samples: 75663
+ellipsoid_enabled_count: 0
+ellipsoid_accepted_samples: 0
+fallback_count: 0
+full_space_sample_count: 75663
+best_feasible_path_length_m: inf
+returned_path_length_m: -
+composite_cost: -
+risk_expected: -
+runtime_s: 60.00002099999983
+iterations_or_expansions: 75663
+
+## Final rerun using continuous informed ellipsoid samples
+Run timestamp: 2026-10-29T20:50:30.759815+08:00
+Config: lib/03_场景/config.json; scene A; mission 1; time budget 60 s per seed.
+Sampler: continuous uniform unit-ball samples transformed into the path-length ellipsoid; out-of-bounds samples rejected.
+
+### seed 0
+status: timeout
+failure_reason: timeout
+first_feasible_time_s: 13.21708220000437
+tree_nodes: 30099
+samples: 140300
+ellipsoid_enabled_count: 97832
+ellipsoid_accepted_samples: 97776
+fallback_count: 56
+full_space_sample_count: 42524
+best_feasible_path_length_m: 1763.4062261433705
+returned_path_length_m: 1763.4062261433705
+composite_cost: 705.3810868231895
+risk_expected: 1.325561873957918e-11
+runtime_s: 60.00205470000219
+iterations_or_expansions: 140300
+
+### seed 1
+status: timeout
+failure_reason: timeout
+first_feasible_time_s: -
+tree_nodes: 53922
+samples: 107499
+ellipsoid_enabled_count: 0
+ellipsoid_accepted_samples: 0
+fallback_count: 0
+full_space_sample_count: 107499
+best_feasible_path_length_m: inf
+returned_path_length_m: -
+composite_cost: -
+risk_expected: -
+runtime_s: 60.0014444000044
+iterations_or_expansions: 107499
+
+### seed 2
+status: timeout
+failure_reason: timeout
+first_feasible_time_s: -
+tree_nodes: 36221
+samples: 76712
+ellipsoid_enabled_count: 0
+ellipsoid_accepted_samples: 0
+fallback_count: 0
+full_space_sample_count: 76712
+best_feasible_path_length_m: inf
+returned_path_length_m: -
+composite_cost: -
+risk_expected: -
+runtime_s: 60.000012500000594
+iterations_or_expansions: 76712
