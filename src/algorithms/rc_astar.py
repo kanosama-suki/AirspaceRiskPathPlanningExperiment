@@ -1,4 +1,4 @@
-"""按朱元军等 2024 论文实现距离/风险加权 RC-A*。"""
+"""距离/风险加权 RC-A* 规划器。"""
 
 from __future__ import annotations
 

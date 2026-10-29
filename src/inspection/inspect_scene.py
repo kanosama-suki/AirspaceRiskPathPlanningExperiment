@@ -1,4 +1,4 @@
-"""只读检查场景容器和已有校验资料。"""
+"""只读采集场景和校验资料。"""
 
 from __future__ import annotations
 

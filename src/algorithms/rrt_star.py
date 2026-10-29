@@ -1,4 +1,4 @@
-"""采用理论近邻半径和重连的三维 RRT* 规划器。"""
+"""三维 RRT* 规划器。"""
 
 from __future__ import annotations
 

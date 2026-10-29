@@ -1,4 +1,4 @@
-"""提供 R 风险矩阵的 sample 与 full 两种校验范围。"""
+"""校验 R 矩阵的 sample 和 full 范围。"""
 
 from __future__ import annotations
 

@@ -8,19 +8,6 @@ ffjj/
 ├── plan.md                                    项目里程碑、实现安排和当前状态
 ├── structure.md                               项目目录和文件用途索引
 ├── .gitignore                                 Git 忽略规则
-├── docs/
-│   └── superpowers/plans/
-│       ├── 2026-10-29-artifact-layout.md      实验产物目录整理计划
-│       ├── 2026-10-29-astar.md                标准 A* 实现与验证计划
-│       ├── 2026-10-29-full-r-generation.md    全量 R 生成与校验计划
-│       ├── 2026-10-29-informed-rrt-star.md    Informed RRT* 椭球采样与冒烟计划
-│       ├── 2026-10-29-m1-acceptance.md        M1 验收与已知差异处理计划
-│       ├── 2026-10-29-m2-public-layer.md       M2 公共层接入真实 R 实施计划
-│       ├── 2026-10-29-risk-astar.md             RiskA* 实现与校验计划
-│       ├── 2026-10-29-rc-astar.md                RC-A* 实现与校验计划
-│       ├── 2026-10-29-rrt-star.md                RRT* 实现与冒烟计划
-│       ├── 2026-10-29-m4-experiment-infrastructure.md M4 实验配置、运行器和预算冒烟计划
-│       └── 2026-10-29-r-risk-intermediates.md R 中间量实现与局部校验计划
 ├── lib/                                       只读输入资料
 │   ├── 01_论文原文/
 │   │   ├── _来源说明.md                        论文文件来源记录
@@ -88,10 +75,6 @@ ffjj/
 │   │   ├── rc_astar.py                           距离/风险加权、动态包围盒启发的 RC-A* 实现
 │   │   ├── risk_astar.py                         纯风险积分 RiskA* 搜索和 LOS 后优化
 │   │   └── rrt_star.py                           均匀采样、理论近邻半径和重连的标准 RRT* 实现
-│   ├── experiments/
-│   │   ├── __init__.py                          实验模块包声明
-│   │   ├── budget_smoke.py                       预算梯度冒烟、自测和 CSV 汇总
-│   │   └── smoke_dataline.py                    真实 R 起终点直线数据流冒烟检查
 │   ├── io/
 │   │   └── scene.py                             只读加载场景数组、R 和规划任务配置
 │   ├── inspection/
@@ -120,23 +103,13 @@ ffjj/
 │   └── test_experiments_run.py                   运行器状态、合法性复核和预算汇总测试
 ├── experiments/
 │   ├── configs/                                 正式实验批次配置
-│   │   └── base.json                             A/B、任务、算法、种子、预算和输出规则
+│   │   └── base.json                             A/B、任务、算法、种子、预算、输出规则及中文说明
 │   ├── raw/                                     实际运行原始记录与场景采集记录
 │   │   ├── A/                                    正式/冒烟运行的按场景原始 JSONL
 │   │   ├── budget_smoke/                         预算自测或梯度扫描的原始 JSONL
 │   │   ├── config_snapshots/                     每次运行使用的配置快照
-│   │   ├── inspect_A.txt                        场景 A 信息采集记录
-│   │   ├── inspect_B.txt                        场景 B 信息采集记录
-│   │   ├── smoke_astar_A.txt                     场景 A A* 任务 1 真实场景冒烟记录
-│   │   ├── smoke_astar_B.txt                     场景 B A* 任务 1 真实场景冒烟记录
-│   │   ├── smoke_dataline_A.txt                  场景 A 真实 R 直线数据流冒烟记录
-│   │   ├── smoke_dataline_B.txt                  场景 B 真实 R 直线数据流冒烟记录
-│   │   ├── smoke_informed_rrt_star_A.txt          场景 A Informed RRT* seed 0/1/2 冒烟记录
-│   │   ├── smoke_rc_astar_A.txt                  场景 A RC-A* 任务 1 冒烟记录
-│   │   ├── smoke_rc_astar_B.txt                  场景 B RC-A* 任务 1 冒烟记录
-│   │   ├── smoke_risk_astar_A.txt                场景 A RiskA* 冒烟与重试记录
-│   │   ├── smoke_risk_astar_B.txt                场景 B RiskA* 任务 1 冒烟记录
-│   │   └── smoke_rrt_star_A.txt                  场景 A RRT* seed 0/1/2 冒烟记录
+│   │   ├── inspect_A.txt                         场景 A 信息采集记录
+│   │   └── inspect_B.txt                         场景 B 信息采集记录
 │   ├── validation/                              检查脚本生成的日志和机器可读校验结果
 │   │   ├── align_A.txt                          场景 A 风险基准索引对齐日志
 │   │   ├── align_B.txt                          场景 B 风险基准索引对齐日志

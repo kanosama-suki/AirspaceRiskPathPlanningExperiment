@@ -1,4 +1,4 @@
-"""基于建筑掩码的节点与线段碰撞检查。"""
+"""节点和线段碰撞检查。"""
 
 from __future__ import annotations
 

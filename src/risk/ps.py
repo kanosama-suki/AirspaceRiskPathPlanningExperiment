@@ -1,4 +1,4 @@
-"""按场景契约从二维建筑 footprint 计算遮蔽系数场。"""
+"""计算二维遮蔽系数 P_s。"""
 
 from __future__ import annotations
 

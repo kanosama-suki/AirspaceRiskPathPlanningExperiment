@@ -1,4 +1,4 @@
-"""Gammell 2014 原版 Informed RRT* 的路径长度椭球采样器。"""
+"""Informed RRT* 路径长度椭球采样器。"""
 
 from __future__ import annotations
 

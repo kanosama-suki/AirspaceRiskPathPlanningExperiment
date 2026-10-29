@@ -1,4 +1,4 @@
-"""用全局、窗口和探针基准反推 P_s 的 reflect 边界口径。"""
+"""校验 P_s 及 reflect 边界口径。"""
 
 from __future__ import annotations
 

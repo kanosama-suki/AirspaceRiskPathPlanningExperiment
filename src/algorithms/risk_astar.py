@@ -1,4 +1,4 @@
-"""按纯风险积分目标实现 RiskA* 和论文 Algorithm 2 后优化。"""
+"""纯风险积分 RiskA* 规划器。"""
 
 from __future__ import annotations
 
