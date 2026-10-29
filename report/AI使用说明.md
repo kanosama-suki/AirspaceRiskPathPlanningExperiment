@@ -39,3 +39,14 @@
 - **实际验证：** 定向测试 `7 passed`；全套 `python -m pytest tests/ -q` 为 `25 passed`；`python -m compileall -q src tests` 和 `git diff --check` 通过。A/B 任务 1 均 success：A 路径长 `1432.7849 m`，B 路径长 `1445.9973 m`。运行时间与展开节点数仅记录本次冒烟事实，不作为算法性能结论。
 - **结果位置：** `experiments/raw/smoke_astar_A.txt`、`experiments/raw/smoke_astar_B.txt`；实施计划位于 `docs/superpowers/plans/2026-10-29-astar.md`。
 - **变更边界：** 未修改 `src/risk/risk_matrix.py`、`src/core/` 的公共公式、`src/algorithms/` 中其他算法（尚未实现）、输入论文/公式/场景/任务书。真实冒烟只确认 A* 可在 A/B 任务 1 上运行，不构成路径优劣或综合代价结论。
+
+## 本次 RiskA* 实现与冒烟（2026-10-29）
+
+- **Agent / 模型：** Codex，GPT-6 系列模型。
+- **参与环节：** 阅读 Primatesta 2019 的 RiskA* 式 (8)–(11) 与 Algorithm 2；按中文计划实现纯风险积分搜索、低风险平局、LOS 后优化和 metadata；编写玩具地图手算测试；在 A/B 真实 R 上运行任务 1 并复查最终路径的碰撞和转角。
+- **人工提供的任务约束：** 只实现 RiskA* 原版；不使用综合代价的 α 权重；不实现 RC-A*、RRT*、Informed RRT*；不改公共层、风险公式或输入数据。
+- **采用的 AI 输出：** `src/algorithms/risk_astar.py`、算法包注册、`tests/test_risk_astar.py`；保留优化前/后路径与纯风险积分的 A/B raw 冒烟日志。
+- **实际验证：** 定向 RiskA* 测试为 `10 passed`，全套 `python -m pytest tests/ -q` 为 `35 passed`。A/B 任务 1 最新复核均 success。A：展开 `830112` 次，用时 `293.135410 s`，LOS 前后为 140→47 点，纯风险积分 `978.097827247→749.978994437`。B：展开 `705376` 次，用时 `191.566500 s`，LOS 前后为 168→91 点，积分 `451.227813406→362.723166052`。两条最终路径的公共节点碰撞、边碰撞和转角违规数均为 0。A 初次运行与三次优化重试的 timeout 均保留在同一原始日志，最终实现成功。编译检查、`git diff --check` 和只读目录 diff 均通过。
+- **参数假设：** 配置没有 RiskA* `eps` 键，实现暂用 float64 机器 epsilon；A/B 全图最小 `R/R_norm` 高于该值，当前数据不受影响。该假设和未来风险见 `report/assumptions.md`。
+- **结果位置：** `experiments/raw/smoke_risk_astar_A.txt`、`experiments/raw/smoke_risk_astar_B.txt`；中文计划在 `docs/superpowers/plans/2026-10-29-risk-astar.md`。
+- **变更边界：** 未修改 `src/core/`、`src/risk/risk_matrix.py`、A* 公式、场景/论文/公式/任务书；不计算综合代价或排名。LOS 替换还要求新连接处满足公共转角约束，且 1 m 采样与离散端点两种风险代价都不增加。真实冒烟只核验搜索与优化路径有效，不构成算法性能结论。

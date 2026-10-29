@@ -66,3 +66,9 @@
 - **基准精度限制接受：** B 的 `1.1447%` 差异按基准生成时 log 直方图估值的精度限制处理，当前作为已知差异接受，不认定为代码错误，也不阻断 M2。该归因依据 README 对估值方法的说明和 summary 缺少分桶数据；原分桶和估值算法不可复算，故此处是工程接受口径，不是独立复现证明。
 - `verify_r.py --scope full --accept-known-diff` 仅在工程点位/结构校验通过、assumptions 保留本节接受记录，且唯一未通过项为 B 的 `r_median` / `r_norm` summary 差异时返回 0。summary 的严格 MISMATCH 状态仍留在 JSON 和日志；未传开关或出现其他失败仍返回 1。
 - M1 验收状态：A/B 的 R 形状、NaN / finite 计数和窗口/探针工程容差检查符合记录；B 的全局 median 估值差异作为已知差异接受，进入 M2。人工验收记录见 `report/m1_acceptance.md`；详细机器结果见 `experiments/validation/validation_A.json`、`validation_B.json`。
+
+## RiskA* 风险裁剪下界（2026-10-29）
+
+- 用户给定 RiskA* 风险映射为 `clip(R / R_norm, eps, 1)`，但 `lib/03_场景/config.json` 和 RiskA* 原论文材料没有提供本工程 `eps` 的配置值。遵守 config 唯一参数源，不新增或改写场景参数；实现中暂用 `np.finfo(np.float64).eps`，并在 `src/algorithms/risk_astar.py` 作为明确的算法数值下界记录。
+- A/B 本次全图最小 `R / R_norm` 分别约为 `0.05017` 和 `0.001605`，均远大于 float64 epsilon，因此该下界未改变本次 A/B 风险映射结果。若未来场景出现更小的正风险比，应先由论文/用户补充 `eps` 口径再用于正式实验。
+- 影响：只影响低于 float64 可表示误差量级的正风险格；建筑和 NaN 格仍映射为 1，且由公共碰撞检查禁止通行。此项是公开实现假设，不声称为 Primatesta 原文参数。
