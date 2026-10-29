@@ -57,9 +57,16 @@ def sample_risk(risk_field: np.ndarray, point: Point3D, config: Config) -> float
     return value if math.isfinite(value) else None
 
 
-def normalized_risk_cost(path: Sequence[Point3D], risk_field: np.ndarray, config: Config) -> tuple[float, float]:
+def normalized_risk_cost(
+    path: Sequence[Point3D],
+    risk_field: np.ndarray,
+    config: Config,
+    r_norm: float | None = None,
+) -> tuple[float, float]:
     """用端点梯形近似积分 R/R_norm × t_hour，返回代价和 R_norm。"""
-    normalizer = risk_normalizer(risk_field)
+    normalizer = risk_normalizer(risk_field) if r_norm is None else float(r_norm)
+    if not math.isfinite(normalizer) or normalizer <= 0:
+        raise ValueError("R_norm 必须是有限正数。")
     total_cost = 0.0
     for previous, following in zip(path, path[1:]):
         previous_risk = sample_risk(risk_field, previous, config)
@@ -84,19 +91,25 @@ def composite_cost(distance_cost: float, normalized_risk: float, config: Config)
     return alpha1 * float(distance_cost) + alpha2 * float(normalized_risk)
 
 
-def evaluate_path(path: Sequence[Point3D], risk_field: np.ndarray, config: Config) -> dict[str, float]:
+def evaluate_path(
+    path: Sequence[Point3D],
+    risk_field: np.ndarray,
+    config: Config,
+    r_norm: float | None = None,
+) -> dict[str, float]:
     """计算统一指标；距离代价按数据栅格数表达，风险项为小时制归一化积分。"""
     length_m = path_length(path)
     grid_size = float(config["table2"]["GRID_SIZE"])
     if grid_size <= 0:
         raise ValueError("GRID_SIZE 必须大于 0")
     distance_cost = length_m / grid_size
-    normalized_cost, normalizer = normalized_risk_cost(path, risk_field, config)
+    normalized_cost, normalizer = normalized_risk_cost(path, risk_field, config, r_norm)
     return {
         "length_m": length_m,
         "t_hour": flight_time_hours(length_m, config),
         "risk_norm": normalizer,
         "distance_cost": distance_cost,
+        "risk_expected": normalized_cost * normalizer,
         "normalized_risk_cost": normalized_cost,
         "composite_cost": composite_cost(distance_cost, normalized_cost, config),
     }

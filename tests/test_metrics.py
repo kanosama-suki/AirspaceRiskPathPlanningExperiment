@@ -38,3 +38,19 @@ def test_toy_risk_field_composite_cost() -> None:
     assert result["normalized_risk_cost"] == 1 / 3600
     assert result["composite_cost"] == 0.4 * 2 + 0.6 / 3600
 
+
+def test_evaluate_path_uses_precomputed_normalizer_and_reports_risk_integral() -> None:
+    risk_field = np.full((5, 5, 3), 100.0, dtype=float)
+    risk_field[0, 0, 0] = 2.0
+    risk_field[2, 0, 0] = 6.0
+    path = [(0, 0, 30), (20, 0, 30)]
+
+    # 手算：端点风险均值为 4，飞行时间为 20/(20×3600) 小时，
+    # 未归一化风险积分为 4×20/(20×3600)=1/900；给定 R_norm=4 后归一化代价为 1/3600。
+    result = evaluate_path(path, risk_field, toy_config(), r_norm=4.0)
+
+    assert result["risk_norm"] == 4.0
+    assert result["risk_expected"] == 1 / 900
+    assert result["normalized_risk_cost"] == 1 / 3600
+    assert result["composite_cost"] == 0.4 * 2 + 0.6 / 3600
+

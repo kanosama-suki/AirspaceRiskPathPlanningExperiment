@@ -11,8 +11,10 @@ ffjj/
 ├── docs/
 │   └── superpowers/plans/
 │       ├── 2026-10-29-artifact-layout.md      实验产物目录整理计划
+│       ├── 2026-10-29-astar.md                标准 A* 实现与验证计划
 │       ├── 2026-10-29-full-r-generation.md    全量 R 生成与校验计划
 │       ├── 2026-10-29-m1-acceptance.md        M1 验收与已知差异处理计划
+│       ├── 2026-10-29-m2-public-layer.md       M2 公共层接入真实 R 实施计划
 │       └── 2026-10-29-r-risk-intermediates.md R 中间量实现与局部校验计划
 ├── lib/                                       只读输入资料
 │   ├── 01_论文原文/
@@ -72,9 +74,16 @@ ffjj/
 │   │   ├── collision.py                        节点和路径段碰撞检查
 │   │   ├── coords.py                           世界坐标与风险栅格索引转换
 │   │   ├── grid.py                             搜索网格、邻域和转角检查
-│   │   └── metrics.py                          路径长度、时间、风险和综合代价评估
-│   ├── algorithms/                              算法模块目录，当前为空
-│   ├── io/                                      配置、场景与结果读写模块目录，当前为空
+│   │   ├── metrics.py                          路径长度、时间、风险和综合代价评估
+│   │   └── types.py                             规划请求、路径结果、规划器基类和注册表
+│   ├── algorithms/
+│   │   ├── __init__.py                          导出当前已实现的 A* 规划器
+│   │   └── astar.py                              只按几何距离搜索的标准 A* 实现
+│   ├── experiments/
+│   │   ├── __init__.py                          实验模块包声明
+│   │   └── smoke_dataline.py                    真实 R 起终点直线数据流冒烟检查
+│   ├── io/
+│   │   └── scene.py                             只读加载场景数组、R 和规划任务配置
 │   ├── inspection/
 │   │   └── inspect_scene.py                    只读采集场景容器和基准文件信息
 │   ├── risk/
@@ -86,15 +95,23 @@ ffjj/
 │       ├── check_data_contract.py               场景数组、文件和索引范围契约检查
 │       └── verify_align.py                       风险摘要、窗口、探针和索引对齐检查
 ├── tests/
+│   ├── test_astar.py                             标准 A* 的手算路径与终止状态测试
 │   ├── test_collision.py                        碰撞检查玩具地图测试
 │   ├── test_coords.py                           坐标转换玩具例测试
 │   ├── test_grid.py                             网格邻域与转角玩具例测试
-│   └── test_metrics.py                          路径指标玩具例测试
+│   ├── test_metrics.py                          路径指标玩具例测试
+│   ├── test_scene.py                            场景加载路径、R 缓存和数组契约测试
+│   ├── test_scene_metrics.py                    真实 R 切片路径指标手算测试
+│   └── test_types.py                             公共规划请求、结果和抽象接口测试
 ├── experiments/
 │   ├── configs/                                 实验配置目录，当前为空
 │   ├── raw/                                     实际运行原始记录与场景采集记录
 │   │   ├── inspect_A.txt                        场景 A 信息采集记录
-│   │   └── inspect_B.txt                        场景 B 信息采集记录
+│   │   ├── inspect_B.txt                        场景 B 信息采集记录
+│   │   ├── smoke_astar_A.txt                     场景 A A* 任务 1 真实场景冒烟记录
+│   │   ├── smoke_astar_B.txt                     场景 B A* 任务 1 真实场景冒烟记录
+│   │   ├── smoke_dataline_A.txt                 场景 A 真实 R 直线数据流冒烟记录
+│   │   └── smoke_dataline_B.txt                 场景 B 真实 R 直线数据流冒烟记录
 │   ├── validation/                              检查脚本生成的日志和机器可读校验结果
 │   │   ├── align_A.txt                          场景 A 风险基准索引对齐日志
 │   │   ├── align_B.txt                          场景 B 风险基准索引对齐日志
@@ -112,7 +129,7 @@ ffjj/
 │   ├── tables/                                  实验统计表输出目录，当前为空
 │   └── figures/                                 实验图表输出目录，当前为空
 └── report/                                      人工整理的说明、诊断和结论
-    ├── AI使用说明.md                             M1 阶段 AI 使用和人工核查记录
+    ├── AI使用说明.md                             M1/M2/M3 阶段 AI 使用和人工核查记录
     ├── assumptions.md                           参数假设、已知差异和待确认事项
     ├── data_validation.md                        场景数据契约检查摘要
     ├── dp_itemized.md                            开伞距离 d_p 单点逐项诊断
