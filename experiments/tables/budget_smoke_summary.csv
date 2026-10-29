@@ -1,0 +1,2 @@
+mode,scene,mission,algorithm,time_budget_s,iteration_budget,runs,solutions,success_rate,runtime_median_s,first_feasible_time_median_s,final_composite_cost_median,statuses
+quick,A,1,rrt_star,10.0,1000,1,0,0.0,0.19701200000417884,,,"{""timeout_no_solution"":1}"

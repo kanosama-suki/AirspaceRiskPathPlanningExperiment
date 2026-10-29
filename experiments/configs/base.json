@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "scene_config": "lib/03_场景/config.json",
+  "scenes": ["A", "B"],
+  "missions": ["1", "2"],
+  "algorithms": [
+    "astar",
+    "risk_astar",
+    "rc_astar",
+    "rrt_star",
+    "informed_rrt_star"
+  ],
+  "algorithm_groups": {
+    "deterministic": ["astar", "risk_astar", "rc_astar"],
+    "sampling": ["rrt_star", "informed_rrt_star"]
+  },
+  "seeds": {
+    "deterministic": [0],
+    "sampling": [
+      0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
+      10, 11, 12, 13, 14, 15, 16, 17, 18, 19
+    ]
+  },
+  "budgets": {
+    "deterministic": {
+      "timeout_s": 600
+    },
+    "sampling": {
+      "time_budget_s": 60,
+      "max_iterations": 50000
+    }
+  },
+  "smoke": {
+    "scene": "A",
+    "mission": "1",
+    "seed": 0,
+    "time_budget_s": 10,
+    "max_iterations": 1000
+  },
+  "validation": {
+    "path_resample_spacing_m": 1.0
+  },
+  "budget_smoke": {
+    "scenes": ["A", "B"],
+    "missions": ["1", "2"],
+    "seeds": [0, 1, 2],
+    "time_budgets_s": [10, 30, 60, 120, 300],
+    "iteration_budgets": [1000, 5000, 10000, 50000],
+    "quick": {
+      "scene": "A",
+      "mission": "1",
+      "algorithm": "rrt_star",
+      "seed": 0,
+      "time_budget_s": 10,
+      "max_iterations": 1000
+    }
+  },
+  "output": {
+    "raw_root": "experiments/raw",
+    "snapshot_dir": "experiments/raw/config_snapshots",
+    "per_run_template": "{scene}/{mission}/{algorithm}/seed_{seed}.jsonl",
+    "tables_root": "experiments/tables"
+  }
+}

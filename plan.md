@@ -221,6 +221,8 @@ config_hash: str
 
 ### 优先级
 
+**M4 实验基础设施记录（2026-10-29）：** 新增 `experiments/configs/base.json`、`experiments/run.py` 和 `experiments/budget_smoke.py`。配置固定 A/B、任务 1/2、五算法、确定性 seed 0 和采样 seed 0–19，正式预算暂用图搜索 600 s、采样 60 s/50000 次迭代，并单独提供 10 s/1000 次 quick 覆盖值。运行器把每次路径按 1 m 重采样后统一检查节点/边碰撞、R NaN、π/3 转角，并用 `src/core/metrics.py` 重算长度、小时制风险积分和综合代价；预算耗尽有 incumbent 时写 `timeout_with_solution`，无解时写 `timeout_no_solution`，不把两者伪装成成功。配置快照和每次 JSONL 记录包含哈希；非法 NaN/Inf 航点也能保留失败记录。`python -m experiments.run --smoke` 已实际写入 A/任务 1 五条 raw 记录；`python -m experiments.budget_smoke --quick` 已验证一项 RRT* quick 链路并生成预算摘要 CSV。运行器状态、非法路径、追加写入、快照和预算汇总测试加入 `tests/test_experiments_run.py`，全套测试 `67 passed`。正式预算梯度仍需显式执行 `python -m experiments.budget_smoke --full`，本轮未启动全量矩阵。
+
 - **P0 必须完成**：M0–M5 核心闭环。包括 A/B × 任务 1/2 × 五算法 × 采样 seeds 0–19。
 - **P1 核心冻结后做**：风险权重敏感性（只对含 α 的算法；RiskA* 原版并列展示，不参与 α 最优排名）；预算敏感性；B 六分区/子区域复杂度；A 局部区域；`Informed RRT*-C` 对照原版；`RiskA*-W` 加权变体对照原版；`RRT*-kNN` 对照理论半径版。所有变体单独命名、单独目录、单独表，不覆盖 `core-v1`。
 - **P2 有余力再做**：Dubins 平滑、路径平滑度、更多起终点对、风险-距离 Pareto、额外统计检验。

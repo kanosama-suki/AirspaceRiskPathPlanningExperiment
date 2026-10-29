@@ -71,3 +71,14 @@
 - **口径限制：** 椭球按几何路径长度收缩，继承的 RRT* 父类仍按公共综合边代价选父/重连；因此本实现完成长度椭球采样，但不能据此声称综合代价目标下的渐近最优，详见 `report/assumptions.md`。冒烟不构成算法性能排名。
 - **验证：** `python -m pytest tests/ -q` 为 `61 passed`；`python -m compileall -q src tests`、`git diff --check` 均通过；`git diff -- lib/01_论文原文 lib/02_公式提取 lib/03_场景 lib/04_任务书` 与对应 `git status --short` 均无输出。
 - **结果位置：** `experiments/raw/smoke_informed_rrt_star_A.txt`；中文计划为 `docs/superpowers/plans/2026-10-29-informed-rrt-star.md`。
+
+## 本次 M4 实验基础设施搭建（2026-10-29）
+
+- **Agent / 模型：** Codex，GPT-6 系列模型；并行子代理只做了运行器接口的只读审查。
+- **参与环节：** 按 `AGENTS.md` 和 M4 规格建立正式实验配置、统一运行器、路径合法性复核、状态细分、预算冒烟脚本和对应单元测试；没有启动正式全量矩阵。
+- **人工提供的任务约束：** 不修改五个算法、公共层、风险公式和只读输入；`experiments/raw/` 只追加实际运行记录；失败运行必须保留；`timeout_with_solution` 与 `timeout_no_solution` 不能伪装成 `success`。
+- **采用的 AI 输出：** `experiments/configs/base.json` 保存 A/B、任务 1/2、五算法、确定性/采样种子、占位预算和输出模板；`experiments/run.py` 负责配置快照、调用 `PLANNERS`、1 m 路径重采样、节点/边碰撞、NaN、转角和公共 metrics 复核，以及 JSONL 追加；`experiments/budget_smoke.py` 提供配置中的 quick 自测和显式 `--full` 预算梯度扫描；`tests/test_experiments_run.py` 覆盖状态映射、非法路径、哈希快照、追加写入和预算汇总。
+- **实际验证：** `python -m experiments.run --smoke` 已运行 A 场景任务 1 的五算法 seed 0，产生 5 条带完整字段的 raw JSONL；10 秒/1000 次 smoke 下图搜索记录为 `timeout_no_solution`，采样算法的迭代预算耗尽也明确映射为 `timeout_no_solution`。`python -m experiments.budget_smoke --quick` 已运行配置指定的一项 RRT* quick 自测并生成 `experiments/tables/budget_smoke_summary.csv`；quick 结果只验证链路，打印的预算建议明确标记“样本不足”。`python -m pytest tests/ -q` 为 `67 passed`，`python -m compileall -q src tests experiments` 和 `git diff --check` 通过。
+- **失败记录与边界处理：** 运行器对包含 NaN/Inf 的非法航点使用稳定字符串摘要，避免失败记录在哈希阶段丢失；配置快照使用实际载入字节计算并校验 SHA-256；RRT* 以 `iteration_budget_exhausted` 结束时按预算耗尽口径记录为 `timeout_no_solution`。这些修正只影响实验记录可靠性，不改算法搜索逻辑。
+- **结果位置：** `experiments/raw/A/1/`、`experiments/raw/budget_smoke/`、`experiments/raw/config_snapshots/` 和 `experiments/tables/budget_smoke_summary.csv`；实施计划为 `docs/superpowers/plans/2026-10-29-m4-experiment-infrastructure.md`。
+- **变更边界：** 未修改 `lib/01_论文原文/`、`lib/02_公式提取/`、`lib/03_场景/`、`lib/04_任务书/`，未修改 `src/core/`、`src/risk/` 或 `src/algorithms/`，未跑正式全量实验和算法排名。

@@ -19,6 +19,7 @@ ffjj/
 │       ├── 2026-10-29-risk-astar.md             RiskA* 实现与校验计划
 │       ├── 2026-10-29-rc-astar.md                RC-A* 实现与校验计划
 │       ├── 2026-10-29-rrt-star.md                RRT* 实现与冒烟计划
+│       ├── 2026-10-29-m4-experiment-infrastructure.md M4 实验配置、运行器和预算冒烟计划
 │       └── 2026-10-29-r-risk-intermediates.md R 中间量实现与局部校验计划
 ├── lib/                                       只读输入资料
 │   ├── 01_论文原文/
@@ -89,6 +90,7 @@ ffjj/
 │   │   └── rrt_star.py                           均匀采样、理论近邻半径和重连的标准 RRT* 实现
 │   ├── experiments/
 │   │   ├── __init__.py                          实验模块包声明
+│   │   ├── budget_smoke.py                       预算梯度冒烟、自测和 CSV 汇总
 │   │   └── smoke_dataline.py                    真实 R 起终点直线数据流冒烟检查
 │   ├── io/
 │   │   └── scene.py                             只读加载场景数组、R 和规划任务配置
@@ -114,10 +116,15 @@ ffjj/
 │   ├── test_rrt_star.py                          RRT* 步长、近邻、重连和障碍测试
 │   ├── test_scene.py                            场景加载路径、R 缓存和数组契约测试
 │   ├── test_scene_metrics.py                    真实 R 切片路径指标手算测试
-│   └── test_types.py                             公共规划请求、结果和抽象接口测试
+│   ├── test_types.py                             公共规划请求、结果和抽象接口测试
+│   └── test_experiments_run.py                   运行器状态、合法性复核和预算汇总测试
 ├── experiments/
-│   ├── configs/                                 实验配置目录，当前为空
+│   ├── configs/                                 正式实验批次配置
+│   │   └── base.json                             A/B、任务、算法、种子、预算和输出规则
 │   ├── raw/                                     实际运行原始记录与场景采集记录
+│   │   ├── A/                                    正式/冒烟运行的按场景原始 JSONL
+│   │   ├── budget_smoke/                         预算自测或梯度扫描的原始 JSONL
+│   │   ├── config_snapshots/                     每次运行使用的配置快照
 │   │   ├── inspect_A.txt                        场景 A 信息采集记录
 │   │   ├── inspect_B.txt                        场景 B 信息采集记录
 │   │   ├── smoke_astar_A.txt                     场景 A A* 任务 1 真实场景冒烟记录
@@ -144,10 +151,11 @@ ffjj/
 │   │   ├── r_window_B.txt                        场景 B R 窗口校验日志
 │   │   ├── validation_A.json                    场景 A 全量 R 校验机器结果
 │   │   └── validation_B.json                    场景 B 全量 R 校验机器结果
-│   ├── tables/                                  实验统计表输出目录，当前为空
+│   ├── tables/                                  实验统计表输出目录
+│   │   └── budget_smoke_summary.csv               预算自测条件的成功率与中位数摘要
 │   └── figures/                                 实验图表输出目录，当前为空
 └── report/                                      人工整理的说明、诊断和结论
-    ├── AI使用说明.md                             M1/M2/M3 阶段 AI 使用和人工核查记录
+    ├── AI使用说明.md                             M1/M2/M3/M4 阶段 AI 使用和人工核查记录
     ├── assumptions.md                           参数假设、已知差异和待确认事项
     ├── data_validation.md                        场景数据契约检查摘要
     ├── dp_itemized.md                            开伞距离 d_p 单点逐项诊断
