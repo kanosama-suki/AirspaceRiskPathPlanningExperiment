@@ -30,7 +30,11 @@ def parse_args() -> argparse.Namespace:
     """解析配置路径、输出目录和场景选择参数。"""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", type=Path, required=True)
-    parser.add_argument("--output-dir", type=Path, required=True)
+    parser.add_argument(
+        "--output-dir",
+        type=Path,
+        help="契约校验结果目录；默认写入仓库 experiments/validation/。",
+    )
     parser.add_argument("--scenes", nargs="+", default=None)
     return parser.parse_args()
 
@@ -629,10 +633,15 @@ def main() -> None:
         scene_keys: Iterable[str] = config["scenes"].keys()
     else:
         scene_keys = args.scenes
-    args.output_dir.mkdir(parents=True, exist_ok=True)
+    output_dir = (
+        args.output_dir.resolve()
+        if args.output_dir is not None
+        else config_path.parents[2] / "experiments" / "validation"
+    )
+    output_dir.mkdir(parents=True, exist_ok=True)
     for scene_key in scene_keys:
         result = inspect_scene(config_path, config, scene_key)
-        output_path = args.output_dir / f"contract_{scene_key}.json"
+        output_path = output_dir / f"contract_{scene_key}.json"
         output_path.write_text(json.dumps(json_value(result), ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         print(f"SCENE {scene_key}")
         for check in result["checks"]:
