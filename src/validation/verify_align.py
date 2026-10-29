@@ -1,19 +1,19 @@
-"""Read-only alignment inspection for scene validation artifacts.
+"""只读检查场景校验资料的索引对齐情况。
 
-This module inspects existing arrays and metadata only.  It never builds a
-risk matrix, computes a shielding factor, or compares a window array with a
-slice of the full risk array.
+本模块只检查已有数组和元数据，不生成风险矩阵、不计算遮蔽系数，
+也不把窗口数组与完整风险数组的切片逐点比较。
 """
 
 from __future__ import annotations
+
+from pathlib import Path
+from typing import Any, Iterable
 
 import argparse
 import csv
 import json
 import math
 import re
-from pathlib import Path
-from typing import Any, Iterable
 
 import numpy as np
 
@@ -32,7 +32,7 @@ BASELINE_VALUE_COLUMNS: tuple[str, ...] = (
 
 
 def parse_args() -> argparse.Namespace:
-    """Parse config, output, and requested scene paths."""
+    """解析配置文件、输出目录和场景参数。"""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
@@ -41,22 +41,22 @@ def parse_args() -> argparse.Namespace:
 
 
 def load_json(path: Path) -> Any:
-    """Read a JSON document without changing it."""
+    """读取 JSON 文档，不修改源文件。"""
     return json.loads(path.read_text(encoding="utf-8"))
 
 
 def compact(value: Any) -> str:
-    """Render a value compactly for a text log."""
+    """将数据紧凑格式化，供文本日志使用。"""
     return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
 
 
 def line(lines: list[str], text: str = "") -> None:
-    """Append one text line."""
+    """向日志内容追加一行。"""
     lines.append(text)
 
 
 def scene_paths(config_path: Path, config: dict[str, Any], scene_key: str) -> dict[str, Path]:
-    """Resolve a scene from config path templates and scene names."""
+    """根据配置中的场景名称和路径模板解析场景文件路径。"""
     scene_name = str(config["paths"][f"scene_{scene_key}"])
     root = config_path.parent
     city_path = root / Path(str(config["paths"]["city_npz"]).replace("<scene>", scene_name, 1))
@@ -74,7 +74,7 @@ def scene_paths(config_path: Path, config: dict[str, Any], scene_key: str) -> di
 
 
 def numeric_summary(array: np.ndarray) -> dict[str, Any]:
-    """Collect facts from an existing numeric array."""
+    """统计已有数组的信息，不变换或重算数组数据。"""
     result: dict[str, Any] = {
         "shape": list(array.shape),
         "dtype": str(array.dtype),
@@ -88,7 +88,12 @@ def numeric_summary(array: np.ndarray) -> dict[str, Any]:
     if not np.issubdtype(array.dtype, np.number):
         return result
     nan_count = int(np.isnan(array).sum()) if np.issubdtype(array.dtype, np.inexact) else 0
-    finite_mask = np.isfinite(array) if np.issubdtype(array.dtype, np.inexact) else np.ones(array.shape, dtype=bool)
+    # 整数数组的元素均为有限值；浮点数组则需要显式筛选有限值。
+    finite_mask = (
+        np.isfinite(array)
+        if np.issubdtype(array.dtype, np.inexact)
+        else np.ones(array.shape, dtype=bool)
+    )
     finite = array[finite_mask]
     result["nan_count"] = nan_count
     result["finite_count"] = int(finite.size)
@@ -101,14 +106,14 @@ def numeric_summary(array: np.ndarray) -> dict[str, Any]:
 
 
 def format_stat(value: Any) -> str:
-    """Format a statistic without introducing a replacement value."""
+    """格式化统计值，不用替代值掩盖缺失信息。"""
     if isinstance(value, float):
         return repr(value)
     return str(value)
 
 
 def values_match(expected: Any, actual: Any) -> bool:
-    """Compare scalar or shape values for an alignment report."""
+    """比较对齐报告中的标量值或数组形状。"""
     if isinstance(expected, list):
         return list(actual) == expected if isinstance(actual, (list, tuple)) else False
     if isinstance(expected, (int, float)) and isinstance(actual, (int, float)):
@@ -117,7 +122,7 @@ def values_match(expected: Any, actual: Any) -> bool:
 
 
 def expected_window_shape(readme_path: Path) -> list[int] | None:
-    """Read the documented R_win shape from README rather than defining it here."""
+    """从 README 读取 R_win 的约定形状，不在此处另行定义。"""
     if not readme_path.is_file():
         return None
     text = readme_path.read_text(encoding="utf-8")
@@ -128,7 +133,7 @@ def expected_window_shape(readme_path: Path) -> list[int] | None:
 
 
 def load_city(path: Path) -> tuple[list[str], dict[str, np.ndarray]]:
-    """Read the existing city.npz arrays, retaining no writable input handle."""
+    """读取已有 city.npz 数组，不保留可写的输入文件句柄。"""
     if not path.is_file():
         return [], {}
     with np.load(path, allow_pickle=False) as data:
@@ -138,7 +143,8 @@ def load_city(path: Path) -> tuple[list[str], dict[str, np.ndarray]]:
 
 
 def compare_summary_to_r(summary: dict[str, Any], arrays: dict[str, np.ndarray], lines: list[str]) -> list[str]:
-    """Compare documented summary statistics with an existing R array only."""
+    """仅将 summary 中的统计量与已有 R 数组进行比较。"""
+    # summary 只作为对照基准，不能据此重建 R。
     expected_fields = {
         "shape": summary.get("shape"),
         "nan_count": summary.get("n_obstacle_cells"),
@@ -150,6 +156,7 @@ def compare_summary_to_r(summary: dict[str, Any], arrays: dict[str, np.ndarray],
         "r_norm": summary.get("r_norm"),
     }
     if "R" not in arrays:
+        # 缺少实测数组时明确报告，不用窗口数组替代。
         line(lines, "R array: unavailable (city.npz has no R key)")
         for name, expected in expected_fields.items():
             display_name = {
@@ -215,7 +222,7 @@ def inspect_window(
     window: dict[str, Any],
     lines: list[str],
 ) -> tuple[bool, str]:
-    """Print facts from one R_win file without comparing it to R."""
+    """打印单个 R_win 文件中的事实，不将其与 R 作逐点比较。"""
     file_name = str(window.get("file", ""))
     if not window_path.is_file():
         line(lines, f"{file_name}: MISSING")
@@ -224,6 +231,7 @@ def inspect_window(
         if "R_win" not in data.files:
             line(lines, f"{file_name}: R_win field missing; keys={compact(list(data.files))}")
             return False, file_name
+        # 此处仅读取已有窗口数据，不索引完整 R 数组。
         array = data["R_win"]
     stats = numeric_summary(array)
     line(lines, f"{file_name}: shape={compact(stats['shape'])}, dtype={stats['dtype']}")
@@ -250,7 +258,7 @@ def inspect_slices(
     summary: dict[str, Any],
     lines: list[str],
 ) -> tuple[list[str], list[str], list[str], list[str]]:
-    """Inspect index, windows, and probes, returning alignment facts."""
+    """检查索引、窗口和探针，并返回对齐检查事实。"""
     missing_files: list[str] = []
     window_names: list[str] = []
     window_shape_failures: list[str] = []
@@ -294,9 +302,11 @@ def inspect_slices(
             window_shape_failures.append(f"{file_name}: actual={compact(actual_shape)}, expected={compact(expected_shape)}")
 
     if probe_path.is_file():
+        # 探针部分只检查 CSV 字段和已有基准值。
         with probe_path.open(encoding="utf-8", newline="") as handle:
             reader = csv.DictReader(handle)
-            columns = list(reader.fieldnames or [])
+            fieldnames = reader.fieldnames
+            columns = [] if fieldnames is None else list(fieldnames)
             rows = list(reader)
         line(lines, f"probe_points.csv.columns: {compact(columns)}")
         line(lines, f"probe_points.csv.row_count: {len(rows)}")
@@ -327,7 +337,7 @@ def inspect_slices(
 
 
 def inspect_ps_check(paths: dict[str, Path], lines: list[str]) -> None:
-    """List ps_check files and readable shapes or sizes without calculating P_s."""
+    """列出 ps_check 文件及可读取的形状或大小，不计算 P_s。"""
     ps_path = paths["ps_check"]
     line(lines, f"ps_check.exists: {ps_path.is_dir()}")
     if not ps_path.is_dir():
@@ -345,7 +355,7 @@ def inspect_ps_check(paths: dict[str, Path], lines: list[str]) -> None:
 
 
 def inspect_scene(config_path: Path, config: dict[str, Any], scene_key: str) -> str:
-    """Produce one alignment log for a scene."""
+    """为一个场景生成索引对齐日志。"""
     paths = scene_paths(config_path, config, scene_key)
     lines = [f"# 场景 {scene_key} 对齐检查", "", "## 1. R 与 summary.json"]
     summary: dict[str, Any] = {}
@@ -379,7 +389,8 @@ def inspect_scene(config_path: Path, config: dict[str, Any], scene_key: str) -> 
     if paths["probes"].is_file():
         with paths["probes"].open(encoding="utf-8", newline="") as handle:
             reader = csv.DictReader(handle)
-            probe_columns = list(reader.fieldnames or [])
+            fieldnames = reader.fieldnames
+            probe_columns = [] if fieldnames is None else list(fieldnames)
             probe_rows = list(reader)
         line(lines, f"probe_points.csv.columns: {compact(probe_columns)}")
         line(lines, f"probe_points.csv.row_count: {len(probe_rows)}")
@@ -449,11 +460,14 @@ def inspect_scene(config_path: Path, config: dict[str, Any], scene_key: str) -> 
 
 
 def main() -> None:
-    """Run the read-only alignment inspection for requested scenes."""
+    """对指定场景执行只读索引对齐检查。"""
     args = parse_args()
     config_path = args.config.resolve()
     config = load_json(config_path)
-    scene_keys: Iterable[str] = args.scenes or config["scenes"].keys()
+    if args.scenes is None:
+        scene_keys: Iterable[str] = config["scenes"].keys()
+    else:
+        scene_keys = args.scenes
     args.output_dir.mkdir(parents=True, exist_ok=True)
     for scene_key in scene_keys:
         output_path = args.output_dir / f"align_{scene_key}.txt"

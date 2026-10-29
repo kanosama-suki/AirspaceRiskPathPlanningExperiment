@@ -80,15 +80,18 @@
 src/                               可复用代码
   core/                            坐标、节点、邻域、碰撞、路径评估、统一接口
   risk/                            风险矩阵生成/读取和校验
+  inspection/                      场景数据和已有资料的只读信息采集工具
+  validation/                      场景数据与校验资料的只读检查工具
   algorithms/                      五种算法，每种算法一个模块
   io/                              配置、场景和结果读写
 tests/                             单元测试和小地图测试
 experiments/                       实验矩阵、运行器、汇总和统计脚本
   configs/                         实验批次配置，不修改 03_场景/config.json
-  raw/                             每次运行的原始 JSONL/JSON 记录
+  raw/                             每次运行的原始记录及场景信息采集记录
+  validation/                      场景验证脚本生成的机器结果，不存实验 run
   tables/                          汇总 CSV
   figures/                         绘图输出
-report/                            实验报告、图表说明、AI 使用说明和截图索引
+report/                            人工可读的实验报告、数据检查摘要、AI 使用说明和截图索引
 README.md                          工程架构、安装和复现实验命令
 AGENTS.md                          给 agent 的短操作宪法，规则引用规划书
 requirements.txt                   依赖版本
@@ -196,7 +199,7 @@ config_hash: str
 | 里程碑 | 目标 | 必须交付 | 冻结/进入下一步条件 |
 |---|---|---|---|
 | M0 需求锁定与仓库初始化 | 建立边界、版本、目录 | README 初稿、参数来源映射、目录骨架、Git 首次提交 | 只读清单完成；复现命令草案完成 |
-| M1 场景和风险矩阵验证 | 证明输入数据可信，锁定坐标/NaN/单位 | `src/risk`、`verify_scene`、两场景校验日志、单元测试 | 两场景四步校验全部 PASS；只读文件无变化 |
+| M1 场景和风险矩阵验证 | 证明输入数据可信，锁定坐标/NaN/单位 | `src/risk` 风险实现、`src/inspection` 信息采集工具、`src/validation` 验证工具、两场景检查记录和数据摘要、单元测试 | 两场景四步校验全部 PASS；只读文件无变化 |
 | M2 公共规划框架 | 五算法共享同一节点、边和指标口径 | `src/core`、公共接口、玩具地图测试、指标测试 | 起终点可加载；碰撞、转角、长度、风险、综合代价测试通过 |
 | M3 五算法原版实现 | 完成可运行的五个 planner | `src/algorithms/*.py`、每个算法的单元/小地图测试、算法说明 | 两场景两任务至少各有一次成功或有明确可复现的无路原因 |
 | M4 冒烟与核心矩阵 | 发现参数、单位和随机性问题并生成核心数据 | 小规模 raw JSONL、对比表、收敛图、全量核心 raw、汇总 CSV、全部图表 | 五算法使用同一输入、同一评价器、基准参数和记录字段完整；核心矩阵无缺失；失败运行有原因；采样有 seed 统计。**冻结 core-v1** |
@@ -240,8 +243,8 @@ config_hash: str
 阶段交付：
 
 - `src/risk/risk_matrix.py`、`src/risk/verify.py`。
-- `experiments/raw/validation_A.json`、`experiments/raw/validation_B.json`。
-- `report/data_validation.md`，说明公式、单位、容差和结果。
+- `experiments/raw/inspect_A.txt`、`experiments/raw/inspect_B.txt` 为场景信息采集记录；`experiments/validation/align_*.txt`、`contract_*.json` 为验证结果。
+- `report/data_validation.md`，记录检查覆盖范围、实际结果和进入下一阶段的阻断项；风险公式、单位和容差按正式风险验证结果补充。
 - 至少覆盖 NaN、边界 reflect、h30/h90、建筑/空地探针的测试。
 
 阶段目标：输入数据和风险矩阵可以被审计。该阶段未通过时，禁止开始算法性能实验。

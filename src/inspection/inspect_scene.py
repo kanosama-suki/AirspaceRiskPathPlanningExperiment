@@ -1,18 +1,19 @@
-"""Read-only inspection of scene containers and validation artifacts."""
+"""只读检查场景容器和已有校验资料。"""
 
 from __future__ import annotations
+
+from pathlib import Path
+from typing import Any, Iterable
 
 import argparse
 import csv
 import json
-from pathlib import Path
-from typing import Any, Iterable
 
 import numpy as np
 
 
 def parse_args() -> argparse.Namespace:
-    """Parse paths and scene identifiers supplied by the caller."""
+    """解析调用者提供的路径和场景标识。"""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
@@ -22,12 +23,12 @@ def parse_args() -> argparse.Namespace:
 
 
 def load_json(path: Path) -> Any:
-    """Read one UTF-8 JSON document without changing it."""
+    """读取 UTF-8 编码的 JSON 文档，不修改源文件。"""
     return json.loads(path.read_text(encoding="utf-8"))
 
 
 def format_value(value: Any) -> str:
-    """Render JSON-compatible values compactly for the text report."""
+    """将 JSON 可序列化的数据紧凑格式化，供文本报告使用。"""
     return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
 
 
@@ -37,7 +38,7 @@ def resolve_scene_paths(
     scene_key: str,
     ps_check_dir_name: str,
 ) -> dict[str, Path]:
-    """Resolve paths from the scene entry and path templates in config.json."""
+    """根据 config.json 中的场景项和路径模板解析各输入路径。"""
     scene_name = config["paths"][f"scene_{scene_key}"]
     city_template = str(config["paths"]["city_npz"])
     city_relative = Path(city_template.replace("<scene>", scene_name, 1))
@@ -58,11 +59,16 @@ def resolve_scene_paths(
 
 
 def array_stats(array: np.ndarray) -> str:
-    """Return factual dtype and finite-value statistics for an existing array."""
+    """返回已有数组的 dtype 和有限值统计信息。"""
     stats = [f"shape={array.shape}", f"dtype={array.dtype}"]
     if np.issubdtype(array.dtype, np.number):
         nan_count = int(np.isnan(array).sum()) if np.issubdtype(array.dtype, np.floating) else 0
-        finite = np.isfinite(array) if np.issubdtype(array.dtype, np.inexact) else np.ones(array.shape, dtype=bool)
+        # 整数数组不含 NaN 或无穷值，因此其中所有元素都是有限值。
+        finite = (
+            np.isfinite(array)
+            if np.issubdtype(array.dtype, np.inexact)
+            else np.ones(array.shape, dtype=bool)
+        )
         finite_count = int(finite.sum())
         stats.extend([f"nan_count={nan_count}", f"finite_count={finite_count}"])
         if finite_count:
@@ -76,7 +82,7 @@ def array_stats(array: np.ndarray) -> str:
 
 
 def write_line(lines: list[str], key: str, value: Any) -> None:
-    """Append one key/value fact to a report."""
+    """向报告追加一条键值事实。"""
     if isinstance(value, str):
         lines.append(f"{key}: {value}")
     else:
@@ -84,12 +90,13 @@ def write_line(lines: list[str], key: str, value: Any) -> None:
 
 
 def inspect_city_npz(path: Path, lines: list[str]) -> dict[str, np.ndarray]:
-    """Read and describe the existing city.npz arrays."""
+    """读取并描述已有 city.npz 中的数组。"""
     arrays: dict[str, np.ndarray] = {}
     write_line(lines, "city_npz.path", str(path))
     write_line(lines, "city_npz.exists", path.exists())
     if not path.exists():
         return arrays
+    # 在 npz 上下文中读取数组，确保读取完后及时关闭文件句柄。
     with np.load(path, allow_pickle=False) as data:
         keys = list(data.files)
         write_line(lines, "city_npz.keys", keys)
@@ -102,7 +109,7 @@ def inspect_city_npz(path: Path, lines: list[str]) -> dict[str, np.ndarray]:
 
 
 def inspect_core_arrays(arrays: dict[str, np.ndarray], lines: list[str]) -> None:
-    """Describe required city arrays and report the absence of a full R array."""
+    """描述必需的场景数组，并报告完整 R 数组是否缺失。"""
     for key in ("building_mask", "pop_density"):
         if key not in arrays:
             write_line(lines, f"{key}.present", False)
@@ -114,11 +121,16 @@ def inspect_core_arrays(arrays: dict[str, np.ndarray], lines: list[str]) -> None
             true_count = int(np.count_nonzero(array))
             write_line(lines, "building_mask.true_count", true_count)
             write_line(lines, "building_mask.total_count", int(array.size))
-            write_line(lines, "building_mask.true_ratio", true_count / array.size if array.size else "unavailable")
+            ratio = true_count / array.size if array.size else "unavailable"
+            write_line(lines, "building_mask.true_ratio", ratio)
         else:
+            # 对全非有限数组先判断，避免直接调用 nanmin/nanmax。
             write_line(lines, "pop_density.nan_count", int(np.isnan(array).sum()))
-            write_line(lines, "pop_density.min", float(np.nanmin(array)) if np.isfinite(array).any() else "unavailable")
-            write_line(lines, "pop_density.max", float(np.nanmax(array)) if np.isfinite(array).any() else "unavailable")
+            has_finite_values = bool(np.isfinite(array).any())
+            minimum = float(np.nanmin(array)) if has_finite_values else "unavailable"
+            maximum = float(np.nanmax(array)) if has_finite_values else "unavailable"
+            write_line(lines, "pop_density.min", minimum)
+            write_line(lines, "pop_density.max", maximum)
     if "R" in arrays:
         write_line(lines, "R.shape", arrays["R"].shape)
         write_line(lines, "R.dtype", str(arrays["R"].dtype))
@@ -137,7 +149,7 @@ def inspect_core_arrays(arrays: dict[str, np.ndarray], lines: list[str]) -> None
 
 
 def inspect_slices(paths: dict[str, Path], lines: list[str]) -> None:
-    """Describe slice index, referenced files, probes, summary, and R_win facts."""
+    """描述切片索引、引用文件、探针、summary 和 R_win 的现有信息。"""
     slices_dir = paths["slices_dir"]
     write_line(lines, "slices_dir", str(slices_dir))
     write_line(lines, "slices_dir.exists", slices_dir.is_dir())
@@ -165,7 +177,8 @@ def inspect_slices(paths: dict[str, Path], lines: list[str]) -> None:
     write_line(lines, "probe_points.csv.exists", probe_path.is_file())
     if probe_path.is_file():
         probe_lines = probe_path.read_text(encoding="utf-8").splitlines()
-        write_line(lines, "probe_points.csv.header", probe_lines[0] if probe_lines else "unavailable")
+        header = probe_lines[0] if probe_lines else "unavailable"
+        write_line(lines, "probe_points.csv.header", header)
         write_line(lines, "probe_points.csv.data_line_count", max(len(probe_lines) - 1, 0))
         with probe_path.open(encoding="utf-8", newline="") as probe_file:
             probes = list(csv.DictReader(probe_file))
@@ -180,7 +193,11 @@ def inspect_slices(paths: dict[str, Path], lines: list[str]) -> None:
         for key in ("r_mean", "r_median", "r_norm"):
             write_line(lines, f"summary_json.{key}.present", key in summary)
         write_line(lines, "R.reference_shape", summary.get("shape", "unavailable"))
-        write_line(lines, "R.reference_dtype", "unavailable: full R array is not stored in allowed inputs")
+        write_line(
+            lines,
+            "R.reference_dtype",
+            "unavailable: full R array is not stored in allowed inputs",
+        )
         write_line(lines, "R.reference_nan_count", summary.get("n_obstacle_cells", "unavailable"))
         write_line(lines, "R.reference_finite_count", summary.get("n_finite_cells", "unavailable"))
         write_line(lines, "R.reference_min", summary.get("r_min", "unavailable"))
@@ -188,13 +205,17 @@ def inspect_slices(paths: dict[str, Path], lines: list[str]) -> None:
 
 
 def inspect_ps_check(paths: dict[str, Path], lines: list[str]) -> None:
-    """List ps_check artifacts and report the three artifact classes by filename."""
+    """列出 ps_check 文件，并按文件名归类三种已有校验资料。"""
     ps_dir = paths["ps_check_dir"]
     write_line(lines, "ps_check_dir", str(ps_dir))
     write_line(lines, "ps_check_dir.exists", ps_dir.is_dir())
     if not ps_dir.is_dir():
         write_line(lines, "ps_check.files", [])
-        write_line(lines, "ps_check.global_window_probe_files", {"global": [], "window": [], "probe": []})
+        write_line(
+            lines,
+            "ps_check.global_window_probe_files",
+            {"global": [], "window": [], "probe": []},
+        )
         return
     files = sorted(path.name for path in ps_dir.iterdir() if path.is_file())
     write_line(lines, "ps_check.files", files)
@@ -217,7 +238,7 @@ def inspect_scene(
     scene_key: str,
     ps_check_dir_name: str,
 ) -> str:
-    """Build one fact-only report for a configured scene."""
+    """为指定场景生成只包含事实的报告。"""
     paths = resolve_scene_paths(config_path, config, scene_key, ps_check_dir_name)
     lines = [f"SCENE: {scene_key}", "", "SECTION 1: city.npz"]
     arrays = inspect_city_npz(paths["city_npz"], lines)
@@ -248,11 +269,14 @@ def inspect_scene(
 
 
 def main() -> None:
-    """Inspect all requested scenes and write one report per scene."""
+    """检查所有指定场景，并为每个场景写出一份报告。"""
     args = parse_args()
     config_path = args.config.resolve()
     config = load_json(config_path)
-    scene_keys: Iterable[str] = args.scenes or config["scenes"].keys()
+    if args.scenes is None:
+        scene_keys: Iterable[str] = config["scenes"].keys()
+    else:
+        scene_keys = args.scenes
     args.output_dir.mkdir(parents=True, exist_ok=True)
     for scene_key in scene_keys:
         report = inspect_scene(config_path, config, scene_key, args.ps_check_dir_name)

@@ -1,18 +1,18 @@
-"""Read-only checks for the scene data contract.
+"""场景数据契约的只读检查工具。
 
-The checker reads configuration, city containers, existing slice references,
-probe schemas, and existing ``inspect_*.txt`` reports.  It does not calculate
-``P_s`` and never builds or recalculates the full risk matrix ``R``.
+读取配置、城市场景容器、已有切片索引、探针字段以及已有的
+``inspect_*.txt`` 报告。不会计算 ``P_s``，也不会生成或重新计算完整风险矩阵 ``R``。
 """
 
 from __future__ import annotations
+
+from pathlib import Path
+from typing import Any, Iterable
 
 import argparse
 import csv
 import json
 import math
-from pathlib import Path
-from typing import Any, Iterable
 
 import numpy as np
 
@@ -27,7 +27,7 @@ EXPECTED_PROBE_COLUMNS: tuple[str, ...] = ("i", "j", "h_idx", "z", "kind", "R_ex
 
 
 def parse_args() -> argparse.Namespace:
-    """Parse paths and scene selection."""
+    """解析配置路径、输出目录和场景选择参数。"""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
@@ -36,12 +36,12 @@ def parse_args() -> argparse.Namespace:
 
 
 def load_json(path: Path) -> Any:
-    """Read a UTF-8 JSON document without modifying it."""
+    """读取 UTF-8 编码的 JSON 文档，不修改源文件。"""
     return json.loads(path.read_text(encoding="utf-8"))
 
 
 def json_value(value: Any) -> Any:
-    """Convert NumPy scalars and paths into JSON-compatible values."""
+    """将 NumPy 标量和路径转换为 JSON 可序列化的数据。"""
     if isinstance(value, Path):
         return str(value)
     if isinstance(value, np.generic):
@@ -56,12 +56,12 @@ def json_value(value: Any) -> Any:
 
 
 def make_check(name: str, status: str, detail: str) -> dict[str, str]:
-    """Create one stable check record."""
+    """创建一条字段固定的检查记录。"""
     return {"name": name, "status": status, "detail": detail}
 
 
 def resolve_scene_paths(config_path: Path, config: dict[str, Any], scene_key: str) -> dict[str, Path]:
-    """Resolve all read-only artifacts for one configured scene."""
+    """解析指定场景中所有只读检查资料的路径。"""
     scene_name = str(config["paths"][f"scene_{scene_key}"])
     root = config_path.parent
     city_path = root / Path(str(config["paths"]["city_npz"]).replace("<scene>", scene_name, 1))
@@ -80,13 +80,13 @@ def resolve_scene_paths(config_path: Path, config: dict[str, Any], scene_key: st
 
 
 def expected_shape(config: dict[str, Any]) -> list[int]:
-    """Get the documented three-dimensional shape from config dimensions."""
+    """根据配置中的维度键取得三维数组的预期形状。"""
     table2 = config["table2"]
     return [int(table2["N_I"]), int(table2["N_J"]), int(table2["N_H"])]
 
 
 def close_sequence(actual: Any, expected: Any) -> bool:
-    """Compare coordinate metadata without accepting shape changes."""
+    """比较坐标元数据，并要求序列长度一致。"""
     try:
         actual_values = [float(item) for item in actual]
         expected_values = [float(item) for item in expected]
@@ -99,9 +99,10 @@ def close_sequence(actual: Any, expected: Any) -> bool:
 
 
 def read_city(path: Path) -> tuple[list[str], dict[str, np.ndarray]]:
-    """Read existing city arrays into memory, retaining no writable input handle."""
+    """读取已有城市场景数组，不保留可写的输入文件句柄。"""
     if not path.is_file():
         return [], {}
+    # 在 NPZ 上下文中复制数组，随后关闭输入文件。
     with np.load(path, allow_pickle=False) as data:
         keys = list(data.files)
         arrays = {key: data[key] for key in keys}
@@ -109,7 +110,7 @@ def read_city(path: Path) -> tuple[list[str], dict[str, np.ndarray]]:
 
 
 def check_city_keys(keys: list[str]) -> dict[str, str]:
-    """Check only the required city container keys."""
+    """检查城市场景容器是否包含必需的数据键。"""
     missing = [key for key in REQUIRED_CITY_KEYS if key not in keys]
     if missing:
         return make_check("city_npz_keys", "FAIL", f"missing required keys: {missing}; actual keys: {keys}")
@@ -117,7 +118,7 @@ def check_city_keys(keys: list[str]) -> dict[str, str]:
 
 
 def check_building_mask(arrays: dict[str, np.ndarray], shape: list[int]) -> dict[str, str]:
-    """Check the building mask shape and boolean dtype."""
+    """检查建筑掩码的形状和布尔类型。"""
     array = arrays.get("building_mask")
     if array is None:
         return make_check("building_mask_contract", "FAIL", "city.npz key building_mask is absent")
@@ -128,7 +129,7 @@ def check_building_mask(arrays: dict[str, np.ndarray], shape: list[int]) -> dict
 
 
 def check_pop_density(arrays: dict[str, np.ndarray], plane_shape: list[int]) -> dict[str, str]:
-    """Check population density structure and finite values."""
+    """检查人口密度数组的结构及有限值。"""
     array = arrays.get("pop_density")
     expected_dtype = np.dtype(np.float32)
     if array is None:
@@ -144,7 +145,7 @@ def check_pop_density(arrays: dict[str, np.ndarray], plane_shape: list[int]) -> 
 
 
 def check_building_footprint(arrays: dict[str, np.ndarray], plane_shape: list[int]) -> dict[str, str]:
-    """Check the ground footprint shape and boolean dtype."""
+    """检查地面建筑投影数组的形状和布尔类型。"""
     array = arrays.get("building_footprint")
     if array is None:
         return make_check("building_footprint_contract", "FAIL", "city.npz key building_footprint is absent")
@@ -155,7 +156,7 @@ def check_building_footprint(arrays: dict[str, np.ndarray], plane_shape: list[in
 
 
 def check_meta(arrays: dict[str, np.ndarray], config: dict[str, Any], shape: list[int]) -> dict[str, str]:
-    """Check metadata JSON and its coordinate contract."""
+    """检查元数据 JSON 及其坐标约定。"""
     meta_array = arrays.get("meta")
     if meta_array is None:
         return make_check("meta_coordinate_contract", "FAIL", "city.npz key meta is absent")
@@ -190,7 +191,7 @@ def check_meta(arrays: dict[str, np.ndarray], config: dict[str, Any], shape: lis
 
 
 def check_config_geometry(config: dict[str, Any], shape: list[int]) -> dict[str, str]:
-    """Check internal geometry and mission endpoint consistency from config."""
+    """检查配置中的场景几何关系和任务起终点。"""
     table2 = config["table2"]
     mismatches: list[str] = []
     if not close_sequence(table2["SCENE_SIZE"], [table2["N_I"] * table2["GRID_SIZE"], table2["N_J"] * table2["GRID_SIZE"]]):
@@ -216,7 +217,7 @@ def check_config_geometry(config: dict[str, Any], shape: list[int]) -> dict[str,
 
 
 def inspect_r_absence_note(path: Path) -> str:
-    """Return a short fact from an existing inspect report, if available."""
+    """如已有 inspect 报告，则返回其中关于 R 键的事实说明。"""
     if not path.is_file():
         return " Existing inspect report is unavailable."
     text = path.read_text(encoding="utf-8", errors="replace")
@@ -226,7 +227,7 @@ def inspect_r_absence_note(path: Path) -> str:
 
 
 def check_r_shape(arrays: dict[str, np.ndarray], expected_shape: list[int], inspect_path: Path) -> dict[str, str]:
-    """Check the actual full R array shape, never a summary or window shape."""
+    """检查完整 R 数组的实际形状，不用 summary 或窗口形状代替。"""
     array = arrays.get("R")
     if array is None:
         return make_check(
@@ -242,7 +243,7 @@ def check_r_shape(arrays: dict[str, np.ndarray], expected_shape: list[int], insp
 
 
 def check_nan_vs_building(arrays: dict[str, np.ndarray], inspect_path: Path) -> dict[str, str]:
-    """Compare full-R NaN cells with building-mask cells only when R exists."""
+    """仅在 R 存在时，比较 R 的 NaN 位置与建筑掩码。"""
     risk = arrays.get("R")
     building = arrays.get("building_mask")
     if risk is None:
@@ -266,13 +267,14 @@ def check_nan_vs_building(arrays: dict[str, np.ndarray], inspect_path: Path) -> 
     building_mask = building.astype(bool, copy=False)
     nan_count = int(nan_mask.sum())
     building_count = int(building_mask.sum())
+    # 比较完整掩码，避免数量相等但 NaN 位置错位时误判通过。
     equal = bool(np.array_equal(nan_mask, building_mask))
     detail = f"R_nan_count={nan_count}, building_true_count={building_count}, exact_mask_match={equal}"
     return make_check("NaN_vs_building", "PASS" if equal else "FAIL", detail)
 
 
 def check_building_mask_shape_vs_r(arrays: dict[str, np.ndarray], inspect_path: Path) -> dict[str, str]:
-    """Compare building-mask shape to the actual R shape only when R exists."""
+    """仅在 R 存在时，将建筑掩码形状与 R 的实际形状比较。"""
     risk = arrays.get("R")
     building = arrays.get("building_mask")
     if risk is None:
@@ -289,7 +291,7 @@ def check_building_mask_shape_vs_r(arrays: dict[str, np.ndarray], inspect_path: 
 
 
 def check_pop_density_shape(arrays: dict[str, np.ndarray], plane_shape: list[int]) -> dict[str, str]:
-    """Check population-density shape independently of full R availability."""
+    """独立检查人口密度形状，不依赖完整 R 是否存在。"""
     array = arrays.get("pop_density")
     if array is None:
         return make_check("pop_density_shape", "FAIL", "city.npz key pop_density is absent")
@@ -300,7 +302,7 @@ def check_pop_density_shape(arrays: dict[str, np.ndarray], plane_shape: list[int
 
 
 def read_index_windows(path: Path) -> tuple[list[dict[str, Any]], str | None]:
-    """Read index metadata without reading or calculating a full risk matrix."""
+    """读取索引元数据，不读取或计算完整风险矩阵。"""
     if not path.is_file():
         return [], "slices/index.json is missing"
     try:
@@ -314,7 +316,7 @@ def read_index_windows(path: Path) -> tuple[list[dict[str, Any]], str | None]:
 
 
 def check_indexed_files_exist(paths: dict[str, Path]) -> dict[str, str]:
-    """Check indexed windows and the slices probe file exist."""
+    """检查索引列出的窗口文件和切片探针文件是否存在。"""
     windows, error = read_index_windows(paths["index"])
     if error:
         return make_check("indexed_files_exist", "FAIL", error)
@@ -345,7 +347,7 @@ def check_indexed_files_exist(paths: dict[str, Path]) -> dict[str, str]:
 
 
 def check_summary_fields(paths: dict[str, Path]) -> dict[str, str]:
-    """Check required summary fields without treating summary as the full R array."""
+    """检查 summary 必需字段，不把它当作完整 R 数组。"""
     required = (
         "scene",
         "r_units",
@@ -380,7 +382,7 @@ def check_summary_fields(paths: dict[str, Path]) -> dict[str, str]:
 
 
 def check_ps_check_classes(paths: dict[str, Path]) -> dict[str, str]:
-    """Check global/window/probe reference artifacts without computing P_s."""
+    """检查全局、窗口和探针基准文件，不计算 P_s。"""
     ps_dir = paths["ps_check"]
     if not ps_dir.is_dir():
         return make_check("ps_check_classes", "FAIL", "ps_check directory is missing")
@@ -397,7 +399,7 @@ def check_ps_check_classes(paths: dict[str, Path]) -> dict[str, str]:
 def check_window_indices_in_r_range(
     paths: dict[str, Path], arrays: dict[str, np.ndarray], h_low: float, inspect_path: Path
 ) -> dict[str, str]:
-    """Check index.json windows against the actual R shape only when R exists."""
+    """仅在 R 存在时，检查 index.json 窗口索引是否在 R 范围内。"""
     risk = arrays.get("R")
     if risk is None:
         return make_check(
@@ -420,14 +422,22 @@ def check_window_indices_in_r_range(
         except (KeyError, TypeError, ValueError):
             problems.append(f"{name}: invalid i0/j0/z")
             continue
-        if i0 < 0 or j0 < 0 or i0 + 64 > risk.shape[0] or j0 + 64 > risk.shape[1] or not 0 <= h_idx < risk.shape[2]:
+        # README.md 约定每个被索引的风险窗口为 64×64 个格点。
+        window_is_out_of_range = (
+            i0 < 0
+            or j0 < 0
+            or i0 + 64 > risk.shape[0]
+            or j0 + 64 > risk.shape[1]
+            or not 0 <= h_idx < risk.shape[2]
+        )
+        if window_is_out_of_range:
             problems.append(f"{name}: i0={i0}, j0={j0}, z={z}, h_idx={h_idx}, R.shape={list(risk.shape)}")
     detail = f"checked {len(windows)} window index records against actual R.shape={list(risk.shape)}"
     return make_check("window_indices_in_R_range", "PASS" if not problems else "FAIL", detail + (f"; problems: {problems}" if problems else ""))
 
 
 def check_probe_indices_in_r_range(paths: dict[str, Path], arrays: dict[str, np.ndarray], inspect_path: Path) -> dict[str, str]:
-    """Check probe i/j/h_idx against the actual R shape only when R exists."""
+    """仅在 R 存在时，检查探针 i/j/h_idx 是否在 R 范围内。"""
     risk = arrays.get("R")
     if risk is None:
         return make_check(
@@ -459,7 +469,7 @@ def check_probe_indices_in_r_range(paths: dict[str, Path], arrays: dict[str, np.
 
 
 def check_slices(paths: dict[str, Path], shape: list[int]) -> dict[str, str]:
-    """Check existing slice references and P_s artifact presence without calculating P_s."""
+    """检查已有切片引用和 P_s 基准文件，不计算 P_s。"""
     index_path = paths["index"]
     summary_path = paths["summary"]
     ps_dir = paths["ps_check"]
@@ -521,14 +531,15 @@ def check_slices(paths: dict[str, Path], shape: list[int]) -> dict[str, str]:
 
 
 def check_probes(paths: dict[str, Path], shape: list[int], h_low: float) -> dict[str, str]:
-    """Check probe schema, coordinate ranges, and declared kinds only."""
+    """只检查探针字段、坐标范围和类型声明。"""
     probe_path = paths["probes"]
     if not probe_path.is_file():
         return make_check("probe_schema_and_ranges", "FAIL", "slices/probe_points.csv is missing")
     try:
         with probe_path.open(encoding="utf-8", newline="") as handle:
             reader = csv.DictReader(handle)
-            columns = list(reader.fieldnames or [])
+            fieldnames = reader.fieldnames
+            columns = [] if fieldnames is None else list(fieldnames)
             rows = list(reader)
     except (OSError, UnicodeError, csv.Error) as error:
         return make_check("probe_schema_and_ranges", "FAIL", f"cannot read probe_points.csv: {error}")
@@ -559,7 +570,7 @@ def check_probes(paths: dict[str, Path], shape: list[int], h_low: float) -> dict
 
 
 def check_r_presence(paths: dict[str, Path], arrays: dict[str, np.ndarray], shape: list[int]) -> dict[str, str]:
-    """Check whether the full R array is actually available; never substitute references."""
+    """检查完整 R 数组是否实际存在，不用参考数据替代。"""
     if "R" not in arrays:
         inspect_note = ""
         if paths["inspect"].is_file():
@@ -583,7 +594,7 @@ def check_r_presence(paths: dict[str, Path], arrays: dict[str, np.ndarray], shap
 
 
 def inspect_scene(config_path: Path, config: dict[str, Any], scene_key: str) -> dict[str, Any]:
-    """Run the nine user-specified read-only contract checks for one scene."""
+    """对一个场景执行九项只读数据契约检查。"""
     paths = resolve_scene_paths(config_path, config, scene_key)
     shape = expected_shape(config)
     plane_shape = shape[:2]
@@ -610,11 +621,14 @@ def inspect_scene(config_path: Path, config: dict[str, Any], scene_key: str) -> 
 
 
 def main() -> None:
-    """Run contract checks, print a checklist, and write one JSON per scene."""
+    """执行契约检查、打印检查清单，并为每个场景写出一份 JSON。"""
     args = parse_args()
     config_path = args.config.resolve()
     config = load_json(config_path)
-    scene_keys: Iterable[str] = args.scenes or config["scenes"].keys()
+    if args.scenes is None:
+        scene_keys: Iterable[str] = config["scenes"].keys()
+    else:
+        scene_keys = args.scenes
     args.output_dir.mkdir(parents=True, exist_ok=True)
     for scene_key in scene_keys:
         result = inspect_scene(config_path, config, scene_key)

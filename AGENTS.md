@@ -15,6 +15,7 @@
 - `01_论文原文/`、`02_公式提取/`、`03_场景/`、`04_任务书/` 下原始文件只读，不改不删不移动。
 - `03_场景/config.json` 是唯一参数源；实验变量走 `experiments/configs/`，结果存配置快照。
 - `experiments/raw/` 不手改、不删失败 run；失败 run 落 raw 并参与成功率统计。
+- 场景信息采集脚本放在 `src/inspection/`，采集记录放在 `experiments/raw/`；验证脚本放在 `src/validation/`，验证结果放在 `experiments/validation/`，人工检查摘要放在 `report/`。
 - 综合代价只由 `src/core/metrics.py` 计算；风险统一小时制 `t_hour = d/(v×3600)`。
 - 五算法先按原论文；适配变体必须单独命名（`RiskA*-W`、`Informed RRT*-C`、`RRT*-kNN`），不与原版混排名。
 - 不捏造数据；不把单次采样最优当统计结论。
@@ -47,7 +48,7 @@ git diff -- 01_论文原文 02_公式提取 03_场景 04_任务书
 ## 6. 工作流
 1. 读 §7 当前状态。
 2. 只改允许目录；先 smoke 再全量。
-3. 原始日志落 `experiments/raw/`，汇总落 `experiments/tables/`。
+3. 实验运行原始记录和场景信息采集记录落 `experiments/raw/`，场景验证结果落 `experiments/validation/`，汇总落 `experiments/tables/`。
 4. 更新 `report/AI使用说明.md` 和 §7 状态。
 5. 汇报：改动文件 + 验证命令 + 结果。
 
