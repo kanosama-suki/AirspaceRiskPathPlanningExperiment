@@ -53,9 +53,9 @@ git diff -- 01_论文原文 02_公式提取 03_场景 04_任务书
 5. 汇报：改动文件 + 验证命令 + 结果。
 
 ## 7. 当前状态
-里程碑：M4 / 正式实验基础设施已搭建，尚未启动正式全量矩阵
-已完成：M2 公共层与真实 R 数据流接口；五个当前规划器均注册到 `PLANNERS`；`experiments/configs/base.json`、`experiments/run.py`、`experiments/budget_smoke.py` 和运行器测试已完成；运行器统一复核节点/边碰撞、NaN、转角和公共 metrics，区分 `success`、`timeout_with_solution`、`timeout_no_solution`、`no_path`、`invalid`；已运行 A 场景任务 1 五算法 seed 0 smoke 和一项 budget quick 自测，原始记录均保留
-下一步：先审阅 quick 结果和预算口径，再按 0–19 seeds、A/B 两场景、任务 1/2 组织正式矩阵；正式运行前确认预算并保留每条失败记录
+里程碑：M4 / 正式实验基础设施已搭建，正式矩阵尚未启动
+已完成：M2 公共层与真实 R 数据流接口；五个当前规划器均注册到 `PLANNERS`；`experiments/configs/base.json`、`experiments/run.py`、`experiments/budget_smoke.py` 和运行器测试已完成；运行器统一复核节点/边碰撞、NaN、转角和公共 metrics，区分 `success`、`timeout_with_solution`、`timeout_no_solution`、`no_path`、`invalid`；正式运行器支持 4 个进程 worker，提供 `short_60s` 与 `formal_1000s` 独立预算档位，结果分别写入 `experiments/raw/60/` 和 `experiments/raw/1000/`，每条记录保存运行 ID；历史本地结果保留
+下一步：先由用户手动运行本地 `short_60s` 矩阵并审阅合法路径及成功率，再同步代码与配置到服务器，由用户手动运行 `formal_1000s` 矩阵；两套预算结果分开汇总，不混合排名
 阻塞：正式矩阵尚未运行；采样算法正式成功率和预算仍需通过预算扫描确认，不能用 smoke 结果作排名结论。RiskA* 的 `eps`、RC-A* 大包围盒中位数估计和 Informed RRT* 长度椭球口径仍按 `report/assumptions.md` 披露；B summary 差异继续按已知基准精度限制处理
 更新日期：2026-10-29
 

@@ -12,9 +12,13 @@ import pytest
 
 from experiments.budget_smoke import _recommend_budget, _rows_from_records
 from experiments.run import (
+    _MatrixTask,
+    _execute_scene_tasks,
     _path_digest,
+    _parse_args,
     append_jsonl,
     assess_path_result,
+    configure_experiment,
     save_config_snapshot,
     run_one,
 )
@@ -182,6 +186,130 @@ def test_append_and_snapshot_preserve_bytes(tmp_path: Path) -> None:
     snapshot = save_config_snapshot(tmp_path / "snapshots", config_bytes, digest)
     assert snapshot.read_bytes() == config_bytes
     assert snapshot.stem == f"base-{digest}"
+
+
+def test_execution_profiles_are_isolated_and_do_not_mutate_base_config() -> None:
+    """60 秒和 1000 秒档位有独立输出根，应用档位不会改基础配置。"""
+    base = {
+        "budgets": {
+            "deterministic": {"timeout_s": 600},
+            "sampling": {"time_budget_s": 600, "max_iterations": 500000},
+        },
+        "execution": {"workers": 4, "executor": "process"},
+        "output": {"raw_root": "experiments/raw", "snapshot_dir": "experiments/raw/config_snapshots"},
+        "profiles": {
+            "short_60s": {
+                "budgets": {
+                    "deterministic": {"timeout_s": 60},
+                    "sampling": {"time_budget_s": 60, "max_iterations": 500000},
+                },
+                "output": {"raw_root": "experiments/raw/60"},
+            },
+            "formal_1000s": {
+                "budgets": {
+                    "deterministic": {"timeout_s": 1000},
+                    "sampling": {"time_budget_s": 1000, "max_iterations": 1000000},
+                },
+                "output": {"raw_root": "experiments/raw/1000"},
+            },
+        },
+    }
+
+    short = configure_experiment(base, "short_60s", None, None)
+    long = configure_experiment(base, "formal_1000s", 4, "process")
+
+    assert short["budgets"]["deterministic"]["timeout_s"] == 60
+    assert short["budgets"]["sampling"]["time_budget_s"] == 60
+    assert short["budgets"]["sampling"]["max_iterations"] == 500000
+    assert short["output"]["raw_root"] == "experiments/raw/60"
+    assert long["budgets"]["deterministic"]["timeout_s"] == 1000
+    assert long["budgets"]["sampling"]["time_budget_s"] == 1000
+    assert long["budgets"]["sampling"]["max_iterations"] == 1000000
+    assert long["output"]["raw_root"] == "experiments/raw/1000"
+    assert long["execution"] == {"workers": 4, "executor": "process"}
+    assert base["budgets"]["sampling"]["time_budget_s"] == 600
+    assert base["output"]["raw_root"] == "experiments/raw"
+
+
+def test_formal_runner_cli_accepts_profile_and_four_process_workers() -> None:
+    """正式运行命令可显式选择 60/1000 秒档位和 4 个进程 worker。"""
+    args = _parse_args(
+        ["--profile", "formal_1000s", "--workers", "4", "--executor", "process"]
+    )
+    assert args.profile == "formal_1000s"
+    assert args.workers == 4
+    assert args.executor == "process"
+
+
+def test_process_executor_runs_toy_tasks_and_writes_separate_records(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """两个玩具 A* 任务通过独立进程运行，并由父进程分别保存记录。"""
+    import experiments.run as runner
+
+    monkeypatch.setattr(runner, "PROJECT_ROOT", tmp_path)
+    scene_dir = tmp_path / "toy_scene"
+    scene_dir.mkdir()
+    building_mask = np.zeros((5, 5, 1), dtype=bool)
+    np.savez_compressed(
+        scene_dir / "city.npz",
+        building_mask=building_mask,
+        pop_density=np.ones((5, 5), dtype=np.float64),
+    )
+    config = _toy_config()
+    config["paths"] = {"scene_A": "toy_scene", "city_npz": "<scene>/city.npz"}
+    missions = {
+        "1": ((0.0, 0.0, 0.0), (2.0, 0.0, 0.0)),
+        "2": ((0.0, 4.0, 0.0), (2.0, 4.0, 0.0)),
+    }
+    scene = SceneData(
+        scene_name="A",
+        scene_dir=scene_dir,
+        R=np.full((5, 5, 1), 2.0, dtype=np.float64),
+        building_mask=building_mask,
+        pop_density=np.ones((5, 5), dtype=np.float64),
+        h_low=0.0,
+        h_high=0.0,
+        step=1.0,
+        missions=missions,
+        config=config,
+        config_hash="toy-scene-hash",
+        r_norm=2.0,
+    )
+    tasks = [
+        _MatrixTask(
+            scene_name="A",
+            mission=mission,
+            algorithm="astar",
+            seed=114514,
+            time_budget_s=2.0,
+            iteration_budget=None,
+            spacing_m=1.0,
+            experiment_config_hash="toy-experiment-hash",
+            scene_config_hash=scene.config_hash,
+            run_kind="test",
+            record_path=tmp_path / "records" / f"{mission}.jsonl",
+            profile="process-test",
+            run_id="process-test-1",
+            workers=2,
+            executor_kind="process",
+        )
+        for mission in missions
+    ]
+
+    completed = _execute_scene_tasks(scene, tasks, tmp_path / "config.json")
+
+    assert completed == 2
+    for task in tasks:
+        record = json.loads(task.record_path.read_text(encoding="utf-8").splitlines()[0])
+        assert record["status"] == "success"
+        assert record["execution"] == {
+            "profile": "process-test",
+            "run_id": "process-test-1",
+            "workers": 2,
+            "executor": "process",
+        }
 
 
 def test_budget_summary_and_recommendation_use_only_real_rows() -> None:

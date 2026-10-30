@@ -1,9 +1,0 @@
-mode,scene,mission,algorithm,time_budget_s,iteration_budget,runs,solutions,success_rate,runtime_median_s,first_feasible_time_median_s,final_composite_cost_median,statuses
-targeted_budget,A,1,informed_rrt_star,600.0,500000,3,2,0.6666666666666666,600.0008775000006,208.5643157000004,801.6863941425133,"{""success"":1,""timeout_no_solution"":1,""timeout_with_solution"":1}"
-targeted_budget,A,1,rrt_star,600.0,500000,3,2,0.6666666666666666,600.0027050000008,211.87828320000017,793.1720950151582,"{""timeout_no_solution"":1,""timeout_with_solution"":2}"
-targeted_budget,A,2,informed_rrt_star,600.0,500000,3,2,0.6666666666666666,600.0026748,166.35912320000034,810.7353043746525,"{""success"":1,""timeout_no_solution"":1,""timeout_with_solution"":1}"
-targeted_budget,A,2,rrt_star,600.0,500000,3,2,0.6666666666666666,600.0037054000004,167.86383815,798.6047041037189,"{""timeout_no_solution"":1,""timeout_with_solution"":2}"
-targeted_budget,B,1,informed_rrt_star,600.0,500000,3,2,0.6666666666666666,600.0006227000003,180.23870500000066,878.6622734148225,"{""success"":1,""timeout_no_solution"":1,""timeout_with_solution"":1}"
-targeted_budget,B,1,rrt_star,600.0,500000,3,2,0.6666666666666666,600.0032351,177.93021315000033,852.9188430293359,"{""timeout_no_solution"":1,""timeout_with_solution"":2}"
-targeted_budget,B,2,informed_rrt_star,600.0,500000,3,2,0.6666666666666666,600.0010789999997,134.7589660499998,889.3706291844654,"{""success"":1,""timeout_no_solution"":1,""timeout_with_solution"":1}"
-targeted_budget,B,2,rrt_star,600.0,500000,3,2,0.6666666666666666,600.0029759999998,136.70335085000033,846.2416265199201,"{""timeout_no_solution"":1,""timeout_with_solution"":2}"
