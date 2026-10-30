@@ -1,4 +1,4 @@
-"""计算二维遮蔽系数 P_s。"""
+"""计算二维遮蔽系数 P_s；结果只在平面栅格上定义。"""
 
 from __future__ import annotations
 

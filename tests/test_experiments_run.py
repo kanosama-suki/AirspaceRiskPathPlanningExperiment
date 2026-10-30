@@ -13,6 +13,7 @@ import pytest
 from experiments.budget_smoke import _recommend_budget, _rows_from_records
 from experiments.run import (
     _MatrixTask,
+    _apply_mission_overrides,
     _execute_scene_tasks,
     _path_digest,
     _parse_args,
@@ -231,12 +232,48 @@ def test_execution_profiles_are_isolated_and_do_not_mutate_base_config() -> None
     assert base["output"]["raw_root"] == "experiments/raw"
 
 
+def test_height_changed_mission_is_applied_in_memory_without_changing_scene_data(tmp_path: Path) -> None:
+    """任务 3 只覆盖终点高度：任务 1 和只读场景配置仍保持不变。"""
+    scene = _toy_scene(tmp_path)
+    config = {
+        "mission_overrides": {
+            "toy": {
+                "3": {
+                    "start": [0, 0, 0],
+                    "goal": [2, 0, 1],
+                }
+            }
+        }
+    }
+
+    updated = _apply_mission_overrides(scene, config)
+
+    assert scene.missions["1"] == ((0.0, 0.0, 0.0), (2.0, 0.0, 0.0))
+    assert "3" not in scene.missions
+    assert updated.missions["1"] == scene.missions["1"]
+    assert updated.missions["3"] == ((0.0, 0.0, 0.0), (2.0, 0.0, 1.0))
+
+
 def test_formal_runner_cli_accepts_profile_and_four_process_workers() -> None:
-    """正式运行命令可显式选择 60/1000 秒档位和 4 个进程 worker。"""
+    """正式运行命令可选择预算档位、场景/任务和进程 worker。"""
     args = _parse_args(
-        ["--profile", "formal_1000s", "--workers", "4", "--executor", "process"]
+        [
+            "--profile",
+            "formal_1000s",
+            "--scenes",
+            "A",
+            "B",
+            "--missions",
+            "3",
+            "--workers",
+            "4",
+            "--executor",
+            "process",
+        ]
     )
     assert args.profile == "formal_1000s"
+    assert args.scenes == ["A", "B"]
+    assert args.missions == ["3"]
     assert args.workers == 4
     assert args.executor == "process"
 

@@ -53,11 +53,11 @@ git diff -- 01_论文原文 02_公式提取 03_场景 04_任务书
 5. 汇报：改动文件 + 验证命令 + 结果。
 
 ## 7. 当前状态
-里程碑：M4 / 正式实验基础设施已搭建，正式矩阵尚未启动
-已完成：M2 公共层与真实 R 数据流接口；五个当前规划器均注册到 `PLANNERS`；`experiments/configs/base.json`、`experiments/run.py`、`experiments/budget_smoke.py` 和运行器测试已完成；运行器统一复核节点/边碰撞、NaN、转角和公共 metrics，区分 `success`、`timeout_with_solution`、`timeout_no_solution`、`no_path`、`invalid`；正式运行器支持 4 个进程 worker，提供 `short_60s` 与 `formal_1000s` 独立预算档位，结果分别写入 `experiments/raw/60/` 和 `experiments/raw/1000/`，每条记录保存运行 ID；历史本地结果保留
-下一步：先由用户手动运行本地 `short_60s` 矩阵并审阅合法路径及成功率，再同步代码与配置到服务器，由用户手动运行 `formal_1000s` 矩阵；两套预算结果分开汇总，不混合排名
-阻塞：正式矩阵尚未运行；采样算法正式成功率和预算仍需通过预算扫描确认，不能用 smoke 结果作排名结论。RiskA* 的 `eps`、RC-A* 大包围盒中位数估计和 Informed RRT* 长度椭球口径仍按 `report/assumptions.md` 披露；B summary 差异继续按已知基准精度限制处理
-更新日期：2026-10-29
+里程碑：M4 / 正式实验基础设施已搭建，本地 60 s、180 s 和服务器 600 s 任务 1/2 矩阵已完成，本地任务 3 也已完成
+已完成：M2 公共层与真实 R 数据流接口；五个当前规划器均注册到 `PLANNERS`；`experiments/configs/base.json`、`experiments/run.py`、`experiments/budget_smoke.py` 和运行器测试已完成；运行器统一复核节点/边碰撞、NaN、转角和公共 metrics，区分 `success`、`timeout_with_solution`、`timeout_no_solution`、`no_path`、`invalid`；正式运行器支持 8 个进程 worker；本地 `experiments/raw/60/`、`experiments/raw/180/`、`experiments/raw/600/` 均已保存；实验配置包含 A/B 的任务 1、2 和跨高度任务 3；历史原始记录保留
+下一步：若需要完整长预算跨高度结果，可单独运行服务器任务 3；当前报告按场景、任务和预算分别汇总，不混合排名
+阻塞：采样算法正式成功率仍低于 80% 条件门槛，因此采样算法只报告可行性和路径统计，不参与当前条件的最优排名。RiskA* 的 `eps`、RC-A* 大包围盒中位数估计和 Informed RRT* 长度椭球口径仍按 `report/assumptions.md` 披露；B summary 差异继续按已知基准精度限制处理
+更新日期：2026-10-31
 
 ## 8. 不确定时
 写 `report/assumptions.md`，标注影响；不静默改参数、不跳过失败 run。

@@ -1,4 +1,4 @@
-"""距离/风险加权 RC-A* 规划器。"""
+"""距离/风险加权 RC-A* 规划器；启发式使用动态风险包围盒。"""
 
 from __future__ import annotations
 

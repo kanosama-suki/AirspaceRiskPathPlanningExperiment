@@ -1,4 +1,4 @@
-"""规划算法入口和注册表。"""
+"""规划算法入口和注册表；统一导出五个当前规划器。"""
 
 from .astar import AStarPlanner
 from .informed_rrt_star import InformedRRTStarPlanner

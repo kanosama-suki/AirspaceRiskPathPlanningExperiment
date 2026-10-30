@@ -1,4 +1,4 @@
-"""校验 P_s 及 reflect 边界口径。"""
+"""校验 P_s 及 reflect 边界口径；输出逐项可追溯的比较日志。"""
 
 from __future__ import annotations
 

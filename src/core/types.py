@@ -1,4 +1,4 @@
-"""规划请求、结果和算法接口。"""
+"""规划请求、结果和算法接口；提供 PlannerBase 与 PLANNERS 注册表。"""
 
 from __future__ import annotations
 

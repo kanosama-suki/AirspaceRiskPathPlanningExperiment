@@ -1,4 +1,4 @@
-"""三维 RRT* 规划器。"""
+"""三维 RRT* 规划器；均匀采样、选父并执行重连。"""
 
 from __future__ import annotations
 

@@ -1,4 +1,4 @@
-"""Informed RRT* 路径长度椭球采样器。"""
+"""Informed RRT* 路径长度椭球采样器；树逻辑复用 RRT*。"""
 
 from __future__ import annotations
 

@@ -1,4 +1,4 @@
-"""标准 A* 规划器。"""
+"""标准 A* 规划器；搜索优先级只使用几何距离。"""
 
 from __future__ import annotations
 

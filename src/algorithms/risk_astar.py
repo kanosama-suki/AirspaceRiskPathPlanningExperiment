@@ -1,4 +1,4 @@
-"""纯风险积分 RiskA* 规划器。"""
+"""纯风险积分 RiskA* 规划器；保留 LOS 后优化，不混入综合代价。"""
 
 from __future__ import annotations
 

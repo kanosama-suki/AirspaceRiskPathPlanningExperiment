@@ -1,4 +1,4 @@
-"""校验 R 矩阵的 sample 和 full 范围。"""
+"""校验 R 矩阵的 sample 和 full 范围；比较窗口、探针与全局统计。"""
 
 from __future__ import annotations
 

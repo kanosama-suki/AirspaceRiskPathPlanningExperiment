@@ -1,4 +1,4 @@
-"""只读加载场景数据和任务配置。"""
+"""只读加载场景数据和任务配置；统一返回供规划器使用的 SceneData。"""
 
 from __future__ import annotations
 
