@@ -17,4 +17,5 @@ experiments/raw/_cache/
 experiments/figures/_preview/
 .backpass/
 .backpassrc.json
-.lib/
+lib/
+experiments/

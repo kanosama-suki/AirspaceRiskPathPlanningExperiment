@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 from collections.abc import Mapping, Sequence
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
 from pathlib import Path
 from statistics import median
 from typing import Any
@@ -39,6 +40,32 @@ CSV_FIELDS = (
     "final_composite_cost_median",
     "statuses",
 )
+
+BudgetTask = tuple[
+    SceneData,
+    str,
+    str,
+    int,
+    float | None,
+    int | None,
+    float,
+    str,
+    str,
+    Path,
+]
+ProcessBudgetTask = tuple[
+    str,
+    str,
+    int,
+    float | None,
+    int | None,
+    float,
+    str,
+    str,
+    Path,
+]
+
+_PROCESS_SCENE: SceneData | None = None
 
 
 def _condition_name(mode: str, time_budget_s: float | None, iteration_budget: int | None) -> str:
@@ -127,6 +154,62 @@ def _record_one(
         flush=True,
     )
     return record
+
+
+def _initialize_process_scene(scene_name: str, scene_config_path: Path) -> None:
+    """在每个工作进程中加载一份只读场景，避免通过进程队列复制 R。"""
+    global _PROCESS_SCENE
+    _PROCESS_SCENE = load_scene(scene_name, scene_config_path)
+
+
+def _record_process_task(task: ProcessBudgetTask) -> dict[str, object]:
+    """用工作进程预加载的场景执行一项预算任务。"""
+    if _PROCESS_SCENE is None:
+        raise RuntimeError("预算工作进程没有初始化场景。")
+    return _record_one(_PROCESS_SCENE, *task)
+
+
+def _run_tasks(
+    tasks: Sequence[BudgetTask],
+    workers: int,
+    executor_kind: str = "thread",
+    scene_config_path: Path | None = None,
+) -> list[Mapping[str, object]]:
+    """执行预算任务；进程模式适合 CPU 密集规划，线程模式共享场景内存。"""
+    if workers < 1:
+        raise ValueError("workers 必须是正整数。")
+    if executor_kind not in {"thread", "process"}:
+        raise ValueError("executor_kind 只能是 `thread` 或 `process`。")
+    if not tasks:
+        return []
+    if workers == 1:
+        return [_record_one(*task) for task in tasks]
+
+    if executor_kind == "process":
+        if scene_config_path is None:
+            raise ValueError("进程并发需要 scene_config_path。")
+        scene_name = tasks[0][0].scene_name
+        process_tasks: list[ProcessBudgetTask] = [task[1:] for task in tasks]
+        records: list[Mapping[str, object]] = []
+        with ProcessPoolExecutor(
+            max_workers=min(workers, len(tasks)),
+            initializer=_initialize_process_scene,
+            initargs=(scene_name, scene_config_path),
+        ) as executor:
+            futures = [executor.submit(_record_process_task, task) for task in process_tasks]
+            for future in as_completed(futures):
+                records.append(future.result())
+        return records
+
+    records: list[Mapping[str, object]] = []
+    with ThreadPoolExecutor(
+        max_workers=min(workers, len(tasks)),
+        thread_name_prefix="budget-smoke",
+    ) as executor:
+        futures = [executor.submit(_record_one, *task) for task in tasks]
+        for future in as_completed(futures):
+            records.append(future.result())
+    return records
 
 
 def _summarize_records(records: Sequence[Mapping[str, object]]) -> dict[str, object]:
@@ -244,32 +327,43 @@ def run_quick(
     config: Mapping[str, Any],
     config_hash: str,
     raw_root: Path,
+    workers: int = 1,
+    executor_kind: str = "thread",
 ) -> list[Mapping[str, object]]:
     """运行配置指定的一项短预算自测，不推断跨场景的正式预算。"""
     settings = config["budget_smoke"]["quick"]
     scene_config_path = _resolve_project_path(str(config["scene_config"]), "scene_config")
     scene = load_scene(str(settings["scene"]), scene_config_path)
-    record = _record_one(
-        scene,
-        str(settings["mission"]),
-        str(settings["algorithm"]),
-        int(settings["seed"]),
-        float(settings["time_budget_s"]),
-        int(settings["max_iterations"]),
-        float(config["validation"]["path_resample_spacing_m"]),
-        config_hash,
-        "quick",
-        raw_root,
+    records = _run_tasks(
+        [
+            (
+                scene,
+                str(settings["mission"]),
+                str(settings["algorithm"]),
+                int(settings["seed"]),
+                float(settings["time_budget_s"]),
+                int(settings["max_iterations"]),
+                float(config["validation"]["path_resample_spacing_m"]),
+                config_hash,
+                "quick",
+                raw_root,
+            )
+        ],
+        workers,
+        executor_kind,
+        scene_config_path,
     )
     del scene
     gc.collect()
-    return [record]
+    return records
 
 
 def run_full_scan(
     config: Mapping[str, Any],
     config_hash: str,
     raw_root: Path,
+    workers: int = 1,
+    executor_kind: str = "thread",
 ) -> list[Mapping[str, object]]:
     """执行完整预算梯度和图搜索单次计时；该模式可能运行较长时间。"""
     settings = config["budget_smoke"]
@@ -286,13 +380,14 @@ def run_full_scan(
 
     for scene_name in settings["scenes"]:
         scene = load_scene(str(scene_name), scene_config_path)
+        tasks: list[BudgetTask] = []
         for mission in settings["missions"]:
             mission_id = str(mission)
             for algorithm in sampling_algorithms:
                 for time_budget in time_budgets:
                     for seed in seeds:
-                        records.append(
-                            _record_one(
+                        tasks.append(
+                            (
                                 scene,
                                 mission_id,
                                 algorithm,
@@ -307,8 +402,8 @@ def run_full_scan(
                         )
                 for iteration_budget in iteration_budgets:
                     for seed in seeds:
-                        records.append(
-                            _record_one(
+                        tasks.append(
+                            (
                                 scene,
                                 mission_id,
                                 algorithm,
@@ -323,8 +418,8 @@ def run_full_scan(
                         )
             for algorithm in deterministic_algorithms:
                 time_budget = float(config["budgets"]["deterministic"]["timeout_s"])
-                records.append(
-                    _record_one(
+                tasks.append(
+                    (
                         scene,
                         mission_id,
                         algorithm,
@@ -337,6 +432,58 @@ def run_full_scan(
                         raw_root,
                     )
                 )
+        records.extend(_run_tasks(tasks, workers, executor_kind, scene_config_path))
+        del scene
+        gc.collect()
+    return records
+
+
+def run_targeted_scan(
+    config: Mapping[str, Any],
+    config_hash: str,
+    raw_root: Path,
+    *,
+    workers: int,
+    executor_kind: str,
+    time_budget_s: float,
+    iteration_budget: int,
+    seeds: Sequence[int],
+) -> list[Mapping[str, object]]:
+    """运行候选预算的小规模采样确认，不修改正式配置或执行图搜索。"""
+    if time_budget_s <= 0 or not isinstance(time_budget_s, (int, float)):
+        raise ValueError("定向时间预算必须是正数。")
+    if iteration_budget <= 0:
+        raise ValueError("定向迭代预算必须是正整数。")
+    if not seeds:
+        raise ValueError("定向测试至少需要一个 seed。")
+
+    settings = config["budget_smoke"]
+    scene_config_path = _resolve_project_path(str(config["scene_config"]), "scene_config")
+    sampling_algorithms = [str(item) for item in config["algorithm_groups"]["sampling"]]
+    spacing_m = float(config["validation"]["path_resample_spacing_m"])
+    records: list[Mapping[str, object]] = []
+
+    for scene_name in settings["scenes"]:
+        scene = load_scene(str(scene_name), scene_config_path)
+        tasks: list[BudgetTask] = []
+        for mission in settings["missions"]:
+            for algorithm in sampling_algorithms:
+                for seed in seeds:
+                    tasks.append(
+                        (
+                            scene,
+                            str(mission),
+                            algorithm,
+                            int(seed),
+                            float(time_budget_s),
+                            int(iteration_budget),
+                            spacing_m,
+                            config_hash,
+                            "targeted_budget",
+                            raw_root,
+                        )
+                    )
+        records.extend(_run_tasks(tasks, workers, executor_kind, scene_config_path))
         del scene
         gc.collect()
     return records
@@ -356,33 +503,94 @@ def _parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
         action="store_true",
         help="只运行配置中的一项 quick 自测（默认行为）",
     )
+    parser.add_argument(
+        "--targeted",
+        action="store_true",
+        help="运行候选采样预算的小规模确认，不执行图搜索计时",
+    )
+    parser.add_argument(
+        "--workers",
+        type=int,
+        default=1,
+        help="并发预算任务数；默认 1，显式设置才启用并行",
+    )
+    parser.add_argument(
+        "--executor",
+        choices=("thread", "process"),
+        default="thread",
+        help="并发方式；CPU 密集预算测试建议用 process，多进程会各自加载场景",
+    )
+    parser.add_argument(
+        "--targeted-time-budget",
+        type=float,
+        default=600.0,
+        help="--targeted 的单次时间预算，单位秒",
+    )
+    parser.add_argument(
+        "--targeted-iterations",
+        type=int,
+        default=500000,
+        help="--targeted 的单次迭代预算",
+    )
+    parser.add_argument(
+        "--targeted-seeds",
+        nargs="+",
+        type=int,
+        default=[0],
+        help="--targeted 使用的 seed 列表，默认只跑 seed 0",
+    )
     return parser.parse_args(argv)
 
 
 def main(argv: Sequence[str] | None = None) -> int:
     """运行预算自测/扫描、追加 raw 记录并生成 CSV 汇总。"""
     args = _parse_args(argv)
-    if args.full and args.quick:
-        raise ValueError("--full 和 --quick 不能同时使用。")
+    modes = sum(bool(value) for value in (args.full, args.quick, args.targeted))
+    if modes > 1:
+        raise ValueError("--full、--quick 和 --targeted 只能选择一个。")
+    if args.workers < 1:
+        raise ValueError("--workers 必须是正整数。")
     config, config_bytes, config_hash = load_experiment_config(args.config)
     raw_root = _resolve_project_path(str(config["output"]["raw_root"]), "raw_root")
     tables_root = _resolve_project_path(str(config["output"]["tables_root"]), "tables_root")
     snapshot_dir = _resolve_project_path(str(config["output"]["snapshot_dir"]), "snapshot_dir")
     snapshot = save_config_snapshot(snapshot_dir, config_bytes, config_hash)
-    records = (
-        run_full_scan(config, config_hash, raw_root)
-        if args.full
-        else run_quick(config, config_hash, raw_root)
-    )
+    if args.full:
+        records = run_full_scan(config, config_hash, raw_root, args.workers, args.executor)
+    elif args.targeted:
+        records = run_targeted_scan(
+            config,
+            config_hash,
+            raw_root,
+            workers=args.workers,
+            executor_kind=args.executor,
+            time_budget_s=args.targeted_time_budget,
+            iteration_budget=args.targeted_iterations,
+            seeds=args.targeted_seeds,
+        )
+    else:
+        records = run_quick(config, config_hash, raw_root, args.workers, args.executor)
     rows = _rows_from_records(records)
-    summary_path = tables_root / "budget_smoke_summary.csv"
+    summary_path = tables_root / (
+        "budget_targeted_summary.csv" if args.targeted else "budget_smoke_summary.csv"
+    )
     _write_summary(rows, summary_path)
-    time_recommendation = _recommend_budget(rows, "time_budget_s")
-    iteration_recommendation = _recommend_budget(rows, "iteration_budget")
-    scope = "完整预算扫描" if args.full else "quick 自测，样本不足"
+    time_recommendation = _recommend_budget(rows, "time_budget_s") if not args.targeted else None
+    iteration_recommendation = _recommend_budget(rows, "iteration_budget") if not args.targeted else None
+    if args.full:
+        scope = "完整预算扫描"
+    elif args.targeted:
+        scope = "定向候选预算确认"
+    else:
+        scope = "quick 自测，样本不足"
     print(f"预算扫描模式：{scope}")
-    print(f"根据数据，建议 base.json 的采样时间预算设为 {time_recommendation} 秒，迭代预算设为 {iteration_recommendation}。")
-    if not args.full:
+    if args.targeted:
+        print(
+            "定向测试不自动修改或推荐 base.json；请结合成功率和运行时间人工确认候选预算。"
+        )
+    else:
+        print(f"根据数据，建议 base.json 的采样时间预算设为 {time_recommendation} 秒，迭代预算设为 {iteration_recommendation}。")
+    if not args.full and not args.targeted:
         print("quick 自测仅用于验证运行与落盘链路，不能作为正式预算决策或算法结论。")
     print(f"预算摘要 CSV：{summary_path.relative_to(PROJECT_ROOT)}")
     print(f"配置快照：{snapshot.relative_to(PROJECT_ROOT)}")
