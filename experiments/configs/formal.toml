@@ -1,0 +1,55 @@
+# S/M/L 正式实验配置：所有运行读取冻结路线清单。
+
+experiment_kind = "formal" # 配置类型；正式多路线实验
+experiment_name = "sml-formal" # 实验名称；写入配置快照和汇总
+scene_config = "lib/03_场景/config.json" # 只读场景与公式参数源
+route_manifest = "experiments/routes/sml_routes.jsonl" # 冻结后的 S/M/L 路线清单
+
+[algorithms] # 五算法唯一名单，避免实验配置重复维护
+deterministic = ["astar", "risk_astar", "rc_astar"] # 无随机采样依赖的图搜索
+sampling = ["rrt_star", "informed_rrt_star"] # 需要共同采样 seed 集合的算法
+
+[seeds] # 两类随机性分别记录
+deterministic = 114514 # 图搜索运行标识；当前不改变确定性路径
+sampling = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19] # 两种采样算法共享 20 个 seed
+
+[route_pool] # 冻结正式路线之前的候选池参数
+candidate_routes_per_scene = 1000 # 每个场景生成的合法候选路线数；正式路线少于此数时按分位与复杂度抽样
+route_seed = 114514 # 随机起终点生成器的固定复现 seed
+
+[route_groups.S] # 短距离组；围绕距离分布 p10
+target_percentile = 10 # 目标距离百分位
+percentile_min = 5 # 入选距离区间下界
+percentile_max = 15 # 入选距离区间上界
+routes_per_scene = 40 # 每个场景正式短路线数
+time_budget_s = 60 # 单次运行候选时间预算
+max_iterations = 500000 # 采样算法最大迭代上限
+
+[route_groups.M] # 中距离组；围绕距离分布 p50
+target_percentile = 50 # 目标距离百分位
+percentile_min = 45 # 入选距离区间下界
+percentile_max = 55 # 入选距离区间上界
+routes_per_scene = 10 # 每个场景正式中距离路线数
+time_budget_s = 240 # 单次运行候选时间预算
+max_iterations = 500000 # 采样算法最大迭代上限
+
+[route_groups.L] # 长距离组；围绕距离分布 p90
+target_percentile = 90 # 目标距离百分位
+percentile_min = 85 # 入选距离区间下界
+percentile_max = 95 # 入选距离区间上界
+routes_per_scene = 5 # 每个场景正式长路线数
+time_budget_s = 1200 # 单次运行候选时间预算
+max_iterations = 500000 # 采样算法最大迭代上限
+
+[execution] # 正式运行的计算资源设置
+workers = 8 # 8 vCPU 默认并行任务数；命令行可以覆盖
+executor = "process" # CPU 密集搜索使用多进程
+
+[validation] # 运行后统一合法性复核
+path_resample_spacing_m = 1.0 # 路径重采样间距
+
+[output] # 正式结果和汇总位置
+raw_root = "experiments/raw/sml" # 原始 JSONL 根目录
+snapshot_dir = "experiments/raw/sml/config_snapshots" # 配置快照目录
+per_run_template = "{scene}/{group}/{algorithm}/{route_id}_seed_{seed}.jsonl" # 单任务原始记录
+tables_root = "experiments/tables/sml" # 正式汇总表目录

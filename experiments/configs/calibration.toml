@@ -1,0 +1,22 @@
+# 预算与并行吞吐校准配置：不参与正式排名。
+
+experiment_kind = "calibration" # 配置类型；预算和 worker 校准
+experiment_name = "sml-calibration" # 校准实验名称
+formal_config = "experiments/configs/formal.toml" # 路线、算法、seed 和组预算的唯一来源
+
+[sampling_budget] # 采样算法时间档位
+time_budgets_s = [10, 30, 60, 120, 240, 600, 1200] # 待测时间预算
+pilot_time_budgets_s = [60, 120, 240] # pilot 先测正式组附近的三个关键档位
+max_iterations = 500000 # 固定迭代上限；时间预算仍是主动截断
+
+[worker_candidates] # 8 vCPU 机器的吞吐候选
+workers = [6, 8] # 比较保留少量 CPU 与满载的端到端吞吐
+
+[calibration] # 每个条件的抽样规模
+routes_per_scene_group = 3 # 每个场景每个距离组抽取的路线数
+sampling_seed_count = 3 # 从正式 seed 集合中取前 3 个用于采样校准
+graph_timeout_s = 60 # 仅 quick 模式的图搜索安全截止；full 使用 formal 分组预算
+
+[output] # 校准结果位置
+raw_root = "experiments/raw/calibration" # 校准原始 JSONL 与配置快照目录
+summary_csv = "experiments/tables/calibration_summary.csv" # 校准汇总表

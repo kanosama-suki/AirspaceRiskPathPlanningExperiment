@@ -18,6 +18,17 @@ experiments/figures/_preview/
 .backpass/
 .backpassrc.json
 lib/
-experiments/
-report/
+experiments/raw/
+experiments/archive/
+experiments/validation/
+experiments/tables/
+experiments/figures/
+experiments/routes/*.jsonl
+experiments/routes/*.manifest.json
+report/*.pdf
+
+# Temporary workspace and rebuildable experiment caches
+tmp/*
+!tmp/README.md
+experiments/cache/
 st/

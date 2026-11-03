@@ -1,0 +1,31 @@
+# 数据流冒烟配置：只运行清单中的一条冻结路线和五算法。
+
+experiment_kind = "smoke" # 配置类型；快速数据流验证
+experiment_name = "sml-smoke" # 冒烟实验名称
+scene_config = "lib/03_场景/config.json" # 只读场景与公式参数源
+route_manifest = "experiments/routes/smoke_routes.jsonl" # 单路线冒烟清单
+
+[algorithms] # 冒烟必须覆盖全部五种算法
+deterministic = ["astar", "risk_astar", "rc_astar"] # 三种图搜索
+sampling = ["rrt_star", "informed_rrt_star"] # 两种采样算法
+
+[seeds] # 冒烟随机参数
+deterministic = 114514 # 图搜索固定运行标识
+sampling = [0] # 两种采样算法共用 seed 0
+
+[budget] # 冒烟只验证接口和落盘
+time_budget_s = 10 # 单次运行时间上限
+max_iterations = 1000 # 采样算法最大迭代上限
+
+[execution] # 五算法可同时运行
+workers = 5 # 冒烟并行任务数
+executor = "process" # 使用与正式实验一致的多进程路径
+
+[validation] # 冒烟沿用正式合法性复核
+path_resample_spacing_m = 1.0 # 路径重采样间距
+
+[output] # 冒烟输出与正式实验隔离
+raw_root = "experiments/raw/smoke" # 冒烟原始记录目录
+snapshot_dir = "experiments/raw/smoke/config_snapshots" # 冒烟配置快照
+per_run_template = "{scene}/{group}/{algorithm}/{route_id}_seed_{seed}.jsonl" # 单任务记录模板
+tables_root = "experiments/tables/smoke" # 冒烟汇总目录
